@@ -73,6 +73,11 @@ Vagrant.configure("2") do |config|
     config.vm.provision "file", source: "~/.ssh/id_rsa", destination: "~/.ssh/id_rsa"
   end
 
+  # copy vimrc from users env
+  if File.exists?(File.expand_path("~/.vimrc"))
+    config.vm.provision "file", source: "~/.vimrc", destination: "~/.vimrc"
+  end
+
   ######################################################################
   # Add Python Flask environment
   ######################################################################
