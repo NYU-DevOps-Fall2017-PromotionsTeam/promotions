@@ -1,5 +1,7 @@
 from flask import Flask, jsonify, request, url_for
+import logging
 import os
+from .util import initialize_logging
 
 flask_app = Flask(__name__)
 
@@ -22,17 +24,7 @@ PUT /promotion/{id} - updates a Promotion record in the database
 DELETE /pets/{id} - deletes a Promotion record in the database
 """
 
-# Flask Main App Route
-# See routes.py for Business Logic / Path code
-
-@flask_app.route('/promotions')
-def index():
-    '''Returns a message about the service'''
-    payload = {}
-    payload['info'] = 'Promotion Service Main Page!'
-    payload['data'] = {"Urls": "Put Something Here"}
-    payload['version'] = '1.0'
-    return jsonify(payload), 200
 
 if __name__ == "__main__":
+    initialize_logging(logging.INFO, flask_app)
     flask_app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
