@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, url_for
 import logging
 import os
-from .util import initialize_logging
+from util import initialize_logging
 
 flask_app = Flask(__name__)
 
