@@ -19,9 +19,9 @@ Available Resources:
 GET /promotions - Returns a list all of the Active Promotions
 GET /promotions/{id} - Returns the Pet with a given promot-id number
                        Almost Like a "PromoCode"
-POST /promotion - creates a new Promotion in the database
-PUT /promotion/{id} - updates a Promotion record in the database
-DELETE /pets/{id} - deletes a Promotion record in the database
+POST /promotions - creates a new Promotion in the database
+PUT /promotions/{id} - updates a Promotion record in the database
+DELETE /promotions/{id} - deletes a Promotion record in the database
 """
 
 
