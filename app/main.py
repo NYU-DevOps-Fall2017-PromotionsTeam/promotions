@@ -1,13 +1,10 @@
+from datetime import datetime
 from flask import Flask, jsonify, request, url_for
 import logging
 import os
 from util import initialize_logging
 
-import datetime
-from flask import Flask, jsonify, request, url_for
-from .main import flask_app
-import os
-from promotions import Promotion
+from promotion import Promotion
 
 flask_app = Flask(__name__)
 
@@ -36,7 +33,7 @@ def index():
     '''List all available Promotions'''
     promos = Promotion.all()
     # TODO(joe): Add filters here??
-    results = [promo.serialize() for promo in promos]
+    payload = [promo.serialize() for promo in promos]
     return jsonify(payload), 200
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['GET'])
@@ -47,19 +44,17 @@ def get_promotion(promo_id):
 @flask_app.route('/promotions', methods=['POST'])
 def create_promotion():
     '''Create a New Promotion'''
-    '''
-    start_date = datetime.datetime.now().date()
-    promotion = Promotion()
-    name = request.args.get('name')
-    value = requests.args.get('value')
-    promo_type = requests.args.get('type')
-    data = {]
-    data['name'] = name or 'NONE'
-    data['value'] = value or 'NONE'
-    data['promo_type'] = promo_type or 'NONE'
+    # Fill dict with promotion params
+    data = {}
+    data['name'] = request.args.get('name') or None
+    data['value'] = request.args.get('value') or None
+    data['promo_type'] = request.args.get('type') or None
+    data['start_date'] = datetime.now().date() or None
+    data['detail'] = request.args.get('detail') or None
+    promotion = Promotion(**data)
+    promotion.save()
     flask_app.logger.info(data)
-    return jsonify(data), 200 '''
-    pass
+    return jsonify(data), 200
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['PUT'])
 def update_promotion(promo_id):
@@ -72,5 +67,5 @@ def delete_promotion(promo_id):
     pass
 
 if __name__ == "__main__":
-    initialize_logging(logging.INFO, app)
+    initialize_logging(logging.INFO, flask_app)
     flask_app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
