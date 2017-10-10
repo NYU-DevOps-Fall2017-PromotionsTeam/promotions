@@ -42,7 +42,31 @@ class Promotion:
         """ 
             validate data of promo
         """
-        pass
+        if not isinstance(data, dict):
+            raise DataValidationError('Invalid promo: body of request contained bad or no data.')
+        if 'id' in data:
+            try:
+                data['id']=int(data['id'])
+            except ValueError as e:
+                raise DataValidationError('Invalid promo: invalid id, int required. '+e.args[0])
+
+        if 'promo_type' in data and data['promo_type'] not in ['$','%']:
+            raise DataValidationError('Invalid promo: invalid promo type, $ or % required.')
+        if 'value' in data:
+            try:
+                data['value']=float(data['value'])
+            except ValueError as e:
+                raise DataValidationError('Invalid promo: invalid value, number required. '+e.args[0])
+        if 'start_date' in data:
+            try:
+                data['start_date']=datetime.strptime(data['start_date'],'%Y-%m-%d %H:%M:%S')
+            except ValueError as e:
+                raise DataValidationError('Invalid promo: invalid start date format, date format required: YYYY-MM-DD HH:MM:SS. '+e.args[0])
+        if 'end_date' in data:
+            try:
+                data['end_date']=datetime.strptime(data['end_date'],'%Y-%m-%d %H:%M:%S')
+            except ValueError as e:
+                raise DataValidationError('Invalid promo: invalid end date format, date format required: YYYY-MM-DD HH:MM:SS. '+e.args[0])
 
     def deserialize(self, data):
         """
@@ -51,6 +75,18 @@ class Promotion:
             data (dict): A dictionary containing the Promotion data
         """
         Promotion.__validate_promo_data(data)
+        if 'name' in data:
+            self.name = str(data['name'])
+        if 'promo_type' in data:
+            self.promo_type = data['promo_type']
+        if 'value' in data:
+            self.value = data['value']
+        if 'start_date' in data:
+            self.start_date = data['start_date']
+        if 'end_date' in data:
+            self.end_date = data['end_date']
+        if 'detail' in data:
+            self.detail = str(data['detail'])
 
     @staticmethod
     def all():
@@ -63,7 +99,7 @@ class Promotion:
 
     @staticmethod
     def find_by_id(id):
-        """ Finds a Pet by it's ID """
+        """ Finds a Promo by it's ID """
         if not Promotion.data:
             return None
         promos = [promo for promo in Promotion.data if promo.id == id]
