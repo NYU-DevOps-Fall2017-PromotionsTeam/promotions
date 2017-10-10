@@ -46,12 +46,12 @@ def create_promotion():
     '''Create a New Promotion'''
     # Fill dict with promotion params
     data = {}
-    data['name'] = request.args.get('name') or None
-    data['value'] = request.args.get('value') or None
-    data['promo_type'] = request.args.get('type') or None
-    data['start_date'] = datetime.now() or None
+    data['name'] = request.args.get('name')
+    data['value'] = request.args.get('value')
+    data['promo_type'] = request.args.get('type')
+    data['start_date'] = datetime.now()
     data['detail'] = request.args.get('detail') or None
-    promotion = Promotion(**data)
+    promotion = Promotion(**data) # pass dict as params for **kwargs
     promotion.save()
     flask_app.logger.info(data)
     return jsonify(data), 200
