@@ -1,6 +1,9 @@
+import datetime
 from flask import Flask, jsonify, request, url_for
 from .main import flask_app
 import os
+
+from promotions import Promotion
 
 """
 Promotion  Service
@@ -18,13 +21,12 @@ DELETE /pets/{id} - deletes a Promotion record in the database
 # Flask Main App Route
 # See routes.py for Business Logic / Path code
 
-@flask_app.route('/promotions')
+@flask_app.route('/promotions', methods=['GET'])
 def index():
-    '''Returns a message about the service'''
-    payload = {}
-    payload['info'] = 'Promotion Service Main Page!'
-    payload['data'] = {"Urls": "Put Something Here"}
-    payload['version'] = '1.0'
+    '''List all available Promotions'''
+    promos = Promotion.all()
+    # TODO(joe): Add filters here??
+    results = [promo.serialize() for promo in promos]
     return jsonify(payload), 200
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['GET'])
@@ -33,16 +35,26 @@ def get_promotion(promo_id):
     pass
 
 @flask_app.route('/promotions', methods=['POST'])
-def get_promotion(promo_id):
+def create_promotion():
     '''Create a New Promotion'''
-    pass
+    start_date = datetime.datetime.now().date()
+    promotion = Promotion()
+    name = request.args.get('name')
+    value = requests.args.get('value')
+    promo_type = requests.args.get('type')
+    data = {]
+    data['name'] = name or 'NONE'
+    data['value'] = value or 'NONE'
+    data['promo_type'] = promo_type or 'NONE'
+    flask_app.logger.info(data)
+    return jsonify(data), 200
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['PUT'])
-def get_promotion(promo_id):
+def update_promotion(promo_id):
     '''Update an existing Promotion'''
     pass
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['DELETE'])
-def get_promotion(promo_id):
+def delete_promotion(promo_id):
     '''Delete an existing Promotion'''
     pass
