@@ -57,7 +57,7 @@ def create_promotion():
     promotion = Promotion(**data) # pass dict as params for **kwargs
     promotion.save()
     flask_app.logger.info(data)
-    return jsonify(data), 200
+    return jsonify(data), 201
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['PUT'])
 def update_promotion(promo_id):
