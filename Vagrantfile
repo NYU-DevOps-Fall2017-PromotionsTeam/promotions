@@ -88,6 +88,7 @@ Vagrant.configure("2") do |config|
     pip3 install --upgrade pip3
     apt-get -y autoremove
     sudo -H -u ubuntu echo "colorscheme desert" > ~/.vimrc
+    sudo -H -u ubuntu echo "set background=dark" > ~/.vimrc
     cd /vagrant
     sudo pip3 install -r requirements.txt
   SHELL
