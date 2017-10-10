@@ -49,7 +49,7 @@ def create_promotion():
     data['name'] = request.args.get('name')
     data['value'] = request.args.get('value')
     data['promo_type'] = request.args.get('type')
-    data['start_date'] = datetime.now()
+    data['start_date'] = datetime.now().date()
     data['detail'] = request.args.get('detail') or None
     promotion = Promotion(**data) # pass dict as params for **kwargs
     promotion.save()
