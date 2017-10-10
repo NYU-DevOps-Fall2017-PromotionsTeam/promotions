@@ -8,7 +8,7 @@ class Promotion:
 
     data = []
 
-    def __init__(self, name='', promo_type='', value=0, start_date=datetime.max, end_date=datetime.max, detail=''):
+    def __init__(self, name='', promo_type='', value=0, start_date=datetime.max,date(), end_date=datetime.max.date(), detail=''):
         """ Initialize a Promotion """
         self.id = id(self)
         self.name = name
