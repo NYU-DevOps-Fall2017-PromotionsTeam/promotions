@@ -32,8 +32,8 @@ class Promotion:
             "name": self.name,
             "promo_type": self.promo_type,
             "value": self.value,
-            "start_date": self.start_date.isoformat(' ','seconds'),
-            "end_date": self.end_date.isoformat(' ','seconds'),
+            "start_date": self.start_date.isoformat(),
+            "end_date": self.end_date.isoformat(),
             "detail": self.detail    
         }
 
