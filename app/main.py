@@ -39,7 +39,10 @@ def index():
 @flask_app.route('/promotions/<int:promo_id>', methods=['GET'])
 def get_promotion(promo_id):
     '''Get a Promotion with id="promo_id" '''
-    pass
+    promo = Promotion.find(promo_id)
+    if not promo: 
+        raise exception.NotFound('Promo with id: {} was not found'.format(promo_id))
+    return jsonify(promo.serialize()), status.HTTP_200_OK
 
 @flask_app.route('/promotions', methods=['POST'])
 def create_promotion():
@@ -54,7 +57,7 @@ def create_promotion():
     promotion = Promotion(**data) # pass dict as params for **kwargs
     promotion.save()
     flask_app.logger.info(data)
-    return jsonify(data), 200
+    return jsonify(data), 201
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['PUT'])
 def update_promotion(promo_id):
