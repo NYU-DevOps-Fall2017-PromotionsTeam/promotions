@@ -1,4 +1,5 @@
 import unittest
+
 from promotion import Promotion
 
 class TestCaseZero(unittest.TestCase):
