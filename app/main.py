@@ -42,7 +42,7 @@ def get_promotion(promo_id):
     promo = Promotion.find(promo_id)
     if not promo: 
         raise exception.NotFound('Promo with id: {} was not found'.format(promo_id))
-    return jsonify(promo.serialize()), status.HTTP_200_OK
+    return jsonify(promo.serialize()), 200
 
 @flask_app.route('/promotions', methods=['POST'])
 def create_promotion():
@@ -67,7 +67,11 @@ def update_promotion(promo_id):
 @flask_app.route('/promotions/<int:promo_id>', methods=['DELETE'])
 def delete_promotion(promo_id):
     '''Delete an existing Promotion'''
-    pass
+    flask_app.logger.info('Request to delete Promo with id: {}'.format(promo_id))
+    promo = Promotion.find(promo_id)
+    if promo: 
+        promo.delete()
+    return make_response('', 204)
 
 if __name__ == "__main__":
     initialize_logging(logging.INFO, flask_app)
