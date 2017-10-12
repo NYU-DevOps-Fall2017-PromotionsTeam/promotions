@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import Flask, jsonify, request, url_for
+from flask.ext.api import status
 import logging
 import os
 from util import initialize_logging
@@ -53,24 +54,41 @@ def create_promotion():
     data['value'] = request.args.get('value')
     data['promo_type'] = request.args.get('type')
     data['start_date'] = datetime.now().date()
-    data['detail'] = request.args.get('detail') or None
+    data['detail'] = request.args.get('detail')
     promotion = Promotion(**data) # pass dict as params for **kwargs
     promotion.save()
+    flask_app.logger.info('CREATE promotion Success')
     flask_app.logger.info(data)
-    return jsonify(data), 201
+    data.update({'id': promotion.id})
+    return jsonify(data), status.HTTP_201_CREATED
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['PUT'])
 def update_promotion(promo_id):
     '''Update an existing Promotion'''
-    pass
+    promos = Promotion.find_by_id(promo_id)
+    if not promos:
+        info = 'Promotion with id=%s not found' % promo_id
+        return jsonify(info), status.HTTP_404_NOT_FOUND
+    promo = promos[0]
+    try:
+        for arg in request.args:
+            if getattr(promo, arg) or getattr(promo, arg) == '':
+                setattr(promo, arg, request.args.get(arg))
+    except AttributeError as e:
+        # If the attribute doesn't exist, do nothing
+        flask_app.logger.warning('WARNING: Tried to update attribute that doesn\'t exist')
+        pass
+    flask_app.logger.warning('PUT/Update Success')
+    return jsonify(promo.__dict__), status.HTTP_201_CREATED
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['DELETE'])
 def delete_promotion(promo_id):
     '''Delete an existing Promotion'''
     flask_app.logger.info('Request to delete Promo with id: {}'.format(promo_id))
-    promo = Promotion.find(promo_id)
+    promo = Promotion.find_by_id(promo_id)
     if promo: 
         promo.delete()
+    flask_app.logger.info('DELETE promotion Success')
     return make_response('', 204)
 
 if __name__ == "__main__":

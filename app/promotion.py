@@ -90,6 +90,7 @@ class Promotion:
 
     @staticmethod
     def all():
+        '''Return all promotions in the db'''
         return [promo for promo in Promotion.data]
 
     @staticmethod
@@ -98,11 +99,7 @@ class Promotion:
         Promotion.__validate_promo_data(conditions)
 
     @staticmethod
-    def find_by_id(id):
+    def find_by_id(promo_id):
         """ Finds a Promo by it's ID """
-        if not Promotion.data:
-            return None
-        promos = [promo for promo in Promotion.data if promo.id == id]
-        if promos:
-            return promos[0]
-        return None
+        promos = [promo for promo in Promotion.data if promo.id == promo_id]
+        return promos
