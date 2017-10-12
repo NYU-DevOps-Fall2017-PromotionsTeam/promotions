@@ -13,7 +13,7 @@ class Promotion:
         self.id = id(self)
         self.name = name or 'default'
         self.promo_type = promo_type or 'dollars'
-        self.value = value or 0
+        self.value = value or 0.0
         self.start_date = start_date
         self.end_date = end_date
         self.detail = detail or 'n/a'
