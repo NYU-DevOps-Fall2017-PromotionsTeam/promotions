@@ -52,6 +52,8 @@ def create_promotion():
     data = {}
     data['name'] = request.args.get('name')
     data['value'] = request.args.get('value')
+    if data['value'] is not None:
+        data['value'] = float(data['value'])
     data['promo_type'] = request.args.get('type')
     data['start_date'] = datetime.now().date()
     data['detail'] = request.args.get('detail')
