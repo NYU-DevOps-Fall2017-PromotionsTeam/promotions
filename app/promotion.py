@@ -8,14 +8,14 @@ class Promotion:
 
     data = []
 
-    def __init__(self, name=None, promo_type=None, value=None, start_date=datetime.max.date(), end_date=datetime.max.date(), detail=None):
+    def __init__(self, name=None, promo_type=None, value=None, start_date=None, end_date=None, detail=None):
         """ Initialize a Promotion """
         self.id = id(self)
         self.name = name or 'default'
         self.promo_type = promo_type or 'dollars'
         self.value = value or 0.0
-        self.start_date = start_date
-        self.end_date = end_date
+        self.start_date = start_date or datetime.max.date()
+        self.end_date = end_date or datetime.max.date()
         self.detail = detail or 'n/a'
     
     def save(self):
