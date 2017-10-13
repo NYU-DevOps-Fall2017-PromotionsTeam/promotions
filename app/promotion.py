@@ -8,15 +8,15 @@ class Promotion:
 
     data = []
 
-    def __init__(self, name='', promo_type='', value=0, start_date=datetime.max.date(), end_date=datetime.max.date(), detail=''):
+    def __init__(self, name=None, promo_type=None, value=None, start_date=None, end_date=None, detail=None):
         """ Initialize a Promotion """
         self.id = id(self)
-        self.name = name
-        self.promo_type = promo_type
-        self.value = value
-        self.start_date = start_date
-        self.end_date = end_date
-        self.detail = detail
+        self.name = name or 'default'
+        self.promo_type = promo_type or '$'
+        self.value = value or 0.0
+        self.start_date = start_date or datetime.max
+        self.end_date = end_date or datetime.max
+        self.detail = detail or 'n/a'
     
     def save(self):
         """ Add a Promotion to the collection """
@@ -90,6 +90,7 @@ class Promotion:
 
     @staticmethod
     def all():
+        '''Return all promotions in the db'''
         return [promo for promo in Promotion.data]
 
     @staticmethod
@@ -98,11 +99,7 @@ class Promotion:
         Promotion.__validate_promo_data(conditions)
 
     @staticmethod
-    def find_by_id(id):
+    def find_by_id(promo_id):
         """ Finds a Promo by it's ID """
-        if not Promotion.data:
-            return None
-        promos = [promo for promo in Promotion.data if promo.id == id]
-        if promos:
-            return promos[0]
-        return None
+        promos = [promo for promo in Promotion.data if promo.id == promo_id]
+        return promos

@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import Flask, jsonify, request, url_for
+from flask_api import status
 import logging
 import os
 from util import initialize_logging
@@ -40,37 +41,46 @@ def index():
 def get_promotion(promo_id):
     '''Get a Promotion with id="promo_id" '''
     promo = Promotion.find(promo_id)
-    if not promo: 
+    if not promo:
         raise exception.NotFound('Promo with id: {} was not found'.format(promo_id))
     return jsonify(promo.serialize()), status.HTTP_200_OK
 
 @flask_app.route('/promotions', methods=['POST'])
 def create_promotion():
     '''Create a New Promotion'''
-    # Fill dict with promotion params
-    data = {}
-    data['name'] = request.args.get('name')
-    data['value'] = request.args.get('value')
-    data['promo_type'] = request.args.get('type')
-    data['start_date'] = datetime.now().date()
-    data['detail'] = request.args.get('detail') or None
-    promotion = Promotion(**data) # pass dict as params for **kwargs
+    data = dict(request.args)
+    for k, v in data.items():
+        if v: data[k] = v[0] # extract params from len 1 list
+    promotion = Promotion()
+    promotion.deserialize(data)
     promotion.save()
+    flask_app.logger.info('CREATE promotion Success')
     flask_app.logger.info(data)
-    return jsonify(data), 201
+    data.update({'id': promotion.id})
+    return jsonify(data), status.HTTP_201_CREATED
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['PUT'])
 def update_promotion(promo_id):
     '''Update an existing Promotion'''
-    pass
+    promos = Promotion.find_by_id(promo_id)
+    if not promos:
+        info = 'Promotion with id=%s not found' % promo_id
+        return jsonify(info), status.HTTP_404_NOT_FOUND
+    promo = promos[0]
+    data = dict(request.args)
+    for k, v in data.items():
+        if v: data[k] = v[0] # extract params from len 1 list
+    promo.deserialize(data)
+    flask_app.logger.warning('PUT/Update Success')
+    return jsonify(promo.__dict__), status.HTTP_201_CREATED
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['DELETE'])
 def delete_promotion(promo_id):
     '''Delete an existing Promotion'''
     flask_app.logger.info('Request to delete Promo with id: {}'.format(promo_id))
-    promo = Promotion.find(promo_id)
-    if promo: 
-        promo.delete()
+    promo = Promotion.find_by_id(promo_id)
+    if promo: promo.delete()
+    flask_app.logger.info('DELETE promotion Success')
     return make_response('', 204)
 
 if __name__ == "__main__":
