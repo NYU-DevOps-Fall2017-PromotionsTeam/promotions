@@ -1,7 +1,6 @@
 from datetime import datetime, date
 from datetime import timedelta
 import unittest
-from unittest import mock
 
 from promotion import Promotion
 from server import flask_app
