@@ -66,6 +66,7 @@ class TestServer(unittest.TestCase):
         response = self.app.put('/promotions/%d?name=NEWNAME' % _id)
         promo = Promotion.all()[0]
         self.assertEqual(promo.name, 'NEWNAME')
+        promo.delete()
 
     def test_delete_promotion(self):
         pass
