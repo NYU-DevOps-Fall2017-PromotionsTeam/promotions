@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import Flask, jsonify, request, url_for
-from flask.ext.api import status
+from flask_api import status
 import logging
 import os
 from util import initialize_logging
@@ -48,15 +48,21 @@ def get_promotion(promo_id):
 @flask_app.route('/promotions', methods=['POST'])
 def create_promotion():
     '''Create a New Promotion'''
-    # Fill dict with promotion params
-    data = {}
-    data['name'] = request.args.get('name')
-    data['value'] = request.args.get('value')
-    if data['value'] is not None:
-        data['value'] = float(data['value'])
-    data['promo_type'] = request.args.get('type')
-    data['start_date'] = datetime.now().date()
-    data['detail'] = request.args.get('detail')
+    data = dict(request.args)
+    for k, v in data.items():
+        if v: data[k] = v[0] # extract params from len 1 list
+
+    if 'value' in data: data['value'] = float(data['value'])
+    
+    if 'start_date' in data:
+        data['start_date'] = datetime.strptime(request.args.get('start_date'), '%d-%m-%y').date()
+    else:
+        data['start_date'] = datetime.now().date()
+    if 'end_date' in data:
+        data['end_date'] = datetime.strptime(request.args.get('end_date'), '%d-%m-%y').date()
+    else:
+        data['end_date'] = datetime.max.date()
+
     promotion = Promotion(**data) # pass dict as params for **kwargs
     promotion.save()
     flask_app.logger.info('CREATE promotion Success')
