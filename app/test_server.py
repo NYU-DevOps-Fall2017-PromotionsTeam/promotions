@@ -57,11 +57,15 @@ class TestServer(unittest.TestCase):
 
     def test_update_promotion(self):
         '''Do a put to update some data'''
-        params = '?name=test' \
+        params = '?name=OLDNAME' \
                  '&value=10&detail=test&'
         response = self.app.post('/promotions'+params)
         promo = Promotion.all()[0]
-    #    self.assertIsNone(
+        self.assertEqual(promo.name, 'OLDNAME')
+        _id = promo.id
+        response = self.app.put('/promotions/%d?name=NEWNAME' % _id)
+        promo = Promotion.all()[0]
+        self.assertEqual(promo.name, 'NEWNAME')
 
     def test_delete_promotion(self):
         pass

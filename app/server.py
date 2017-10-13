@@ -67,14 +67,10 @@ def update_promotion(promo_id):
         info = 'Promotion with id=%s not found' % promo_id
         return jsonify(info), status.HTTP_404_NOT_FOUND
     promo = promos[0]
-    try:
-        for arg in request.args:
-            if getattr(promo, arg) or getattr(promo, arg) == '':
-                setattr(promo, arg, request.args.get(arg))
-    except AttributeError as e:
-        # If the attribute doesn't exist, do nothing
-        flask_app.logger.warning('WARNING: Tried to update attribute that doesn\'t exist')
-        pass
+    data = dict(request.args)
+    for k, v in data.items():
+        if v: data[k] = v[0] # extract params from len 1 list
+    promo.deserialize(data)
     flask_app.logger.warning('PUT/Update Success')
     return jsonify(promo.__dict__), status.HTTP_201_CREATED
 
