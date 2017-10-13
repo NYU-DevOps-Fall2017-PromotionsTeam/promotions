@@ -29,30 +29,30 @@ class TestServer(unittest.TestCase):
         promo = Promotion.all()[0]
         self.assertIsNotNone(promo)
         self.assertEqual(promo.name, 'default')
-        self.assertEqual(promo.promo_type, 'dollars')
+        self.assertEqual(promo.promo_type, '$')
         self.assertIsInstance(promo.value, float)
         self.assertEqual(promo.value, 0.0)
         self.assertEqual(promo.detail, 'n/a')
-        self.assertEqual(promo.start_date, datetime.now().date())
-        self.assertEqual(promo.end_date, datetime.max.date())
+        self.assertEqual(promo.start_date, datetime.max)
+        self.assertEqual(promo.end_date, datetime.max)
         promo.delete()
     
     def test_create_promotion2(self):
         '''Test Create With Parameters'''
         params = '?name=test' \
                  '&value=10&detail=test&' \
-                 'start_date=01-01-17&end_date=02-02-18&promo_type=percent'
+                 'start_date=2017-01-01+11:11:11&end_date=2018-02-02+11:11:11&promo_type=%'
         response = self.app.post('/promotions'+params)
         # Get promotion back from Model
         promo = Promotion.all()[0]
         self.assertIsNotNone(promo)
         self.assertEqual(promo.name, 'test')
-        self.assertEqual(promo.promo_type, 'percent')
+        self.assertEqual(promo.promo_type, '%')
         self.assertIsInstance(promo.value, float)
         self.assertEqual(promo.value, 10.0)
         self.assertEqual(promo.detail, 'test')
-        self.assertEqual(promo.start_date, date(2017, 1, 1))
-        self.assertEqual(promo.end_date, date(2018, 2, 2))
+        self.assertEqual(promo.start_date, datetime(2017, 1, 1, 11, 11, 11))
+        self.assertEqual(promo.end_date, datetime(2018, 2, 2, 11, 11, 11))
         promo.delete()
 
     def test_update_promotion(self):

@@ -51,19 +51,8 @@ def create_promotion():
     data = dict(request.args)
     for k, v in data.items():
         if v: data[k] = v[0] # extract params from len 1 list
-
-    if 'value' in data: data['value'] = float(data['value'])
-    
-    if 'start_date' in data:
-        data['start_date'] = datetime.strptime(request.args.get('start_date'), '%d-%m-%y').date()
-    else:
-        data['start_date'] = datetime.now().date()
-    if 'end_date' in data:
-        data['end_date'] = datetime.strptime(request.args.get('end_date'), '%d-%m-%y').date()
-    else:
-        data['end_date'] = datetime.max.date()
-
-    promotion = Promotion(**data) # pass dict as params for **kwargs
+    promotion = Promotion()
+    promotion.deserialize(data)
     promotion.save()
     flask_app.logger.info('CREATE promotion Success')
     flask_app.logger.info(data)

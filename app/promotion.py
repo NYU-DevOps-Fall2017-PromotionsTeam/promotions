@@ -12,10 +12,10 @@ class Promotion:
         """ Initialize a Promotion """
         self.id = id(self)
         self.name = name or 'default'
-        self.promo_type = promo_type or 'dollars'
+        self.promo_type = promo_type or '$'
         self.value = value or 0.0
-        self.start_date = start_date or datetime.max.date()
-        self.end_date = end_date or datetime.max.date()
+        self.start_date = start_date or datetime.max
+        self.end_date = end_date or datetime.max
         self.detail = detail or 'n/a'
     
     def save(self):
