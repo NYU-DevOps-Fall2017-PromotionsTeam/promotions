@@ -41,7 +41,7 @@ def index():
 def get_promotion(promo_id):
     '''Get a Promotion with id="promo_id" '''
     promo = Promotion.find(promo_id)
-    if not promo: 
+    if not promo:
         raise exception.NotFound('Promo with id: {} was not found'.format(promo_id))
     return jsonify(promo.serialize()), status.HTTP_200_OK
 
@@ -94,8 +94,7 @@ def delete_promotion(promo_id):
     '''Delete an existing Promotion'''
     flask_app.logger.info('Request to delete Promo with id: {}'.format(promo_id))
     promo = Promotion.find_by_id(promo_id)
-    if promo: 
-        promo.delete()
+    if promo: promo.delete()
     flask_app.logger.info('DELETE promotion Success')
     return make_response('', 204)
 
