@@ -17,9 +17,8 @@ REDIS_PORT = os.getenv('REDIS_PORT', '6379')
 
 """
 Promotion  Service
-
 Available Resources:
-------
+
 GET /promotions - Returns a list all of the Active Promotions
 GET /promotions/{id} - Returns the Pet with a given promot-id number
                        Almost Like a "PromoCode"
@@ -28,9 +27,8 @@ PUT /promotions/{id} - updates a Promotion record in the database
 DELETE /promotions/{id} - deletes a Promotion record in the database
 """
 
-
 @flask_app.route('/promotions', methods=['GET'])
-def index():
+def list_promotions():
     '''List all available Promotions'''
     promos = Promotion.all()
     # TODO(joe): Add filters here??
@@ -82,6 +80,11 @@ def delete_promotion(promo_id):
     if promo: promo.delete()
     flask_app.logger.info('DELETE promotion Success')
     return make_response('', 204)
+
+@flask_app.route('/promotions/<string:action>', methods=['PUT'])
+def operate_on_promotions():
+    '''Perform some action on the Promotion Model'''
+    pass
 
 if __name__ == "__main__":
     initialize_logging(logging.INFO, flask_app)

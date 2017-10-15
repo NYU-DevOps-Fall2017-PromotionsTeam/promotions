@@ -5,7 +5,7 @@ import unittest
 from promotion import Promotion
 from server import flask_app
 
-from server import index, \
+from server import list_promotions, \
     get_promotion, create_promotion, update_promotion, delete_promotion
 
 class TestServer(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestServer(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_index(self):
+    def test_list_promotions(self):
         pass
 
     def test_get_promotion(self):
