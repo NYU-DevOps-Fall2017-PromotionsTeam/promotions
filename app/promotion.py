@@ -1,7 +1,7 @@
 from datetime import datetime
 
 class DataValidationError(Exception):
-    """ Used for an data validation errors when deserializing """
+    """ Used for an data validation errors when deserializing and querying """
     pass
 
 class Promotion:
@@ -49,7 +49,8 @@ class Promotion:
                 data['id']=int(data['id'])
             except ValueError as e:
                 raise DataValidationError('Invalid promo: invalid id, int required. '+e.args[0])
-
+        if 'name' in data:
+            data['name']=str(data['name'])
         if 'promo_type' in data and data['promo_type'] not in ['$','%']:
             raise DataValidationError('Invalid promo: invalid promo type, $ or % required.')
         if 'value' in data:
@@ -67,6 +68,18 @@ class Promotion:
                 data['end_date']=datetime.strptime(data['end_date'],'%Y-%m-%d %H:%M:%S')
             except ValueError as e:
                 raise DataValidationError('Invalid promo: invalid end date format, date format required: YYYY-MM-DD HH:MM:SS. '+e.args[0])
+        if 'detail' in data:
+            data['detail']=str(data['detail'])
+        if 'valid_on' in data:
+            try:
+                data['valid_on']=datetime.strptime(data['valid_on'],'%Y-%m-%d %H:%M:%S')
+            except ValueError as e:
+                raise DataValidationError('Invalid promo: invalid valid_on format, date format required: YYYY-MM-DD HH:MM:SS. '+e.args[0])
+        if 'discount_greater_or_equal' in data:
+            try:
+                data['discount_greater_or_equal']=float(data['discount_greater_or_equal'])
+            except ValueError as e:
+                raise DataValidationError('Invalid promo: invalid discount_greater_or_equal, number required. '+e.args[0])            
 
     def deserialize(self, data):
         """
@@ -94,12 +107,25 @@ class Promotion:
         return [promo for promo in Promotion.data]
 
     @staticmethod
-    def find(conditions):
+    def query(conditions):
         """ conditions is a dictionary including all requirement for finding promos """
         Promotion.__validate_promo_data(conditions)
+        result = set(Promotion.data)
+        if 'name' in conditions:
+            result &= set([promo for promo in Promotion.data if conditions['name'] in promo.name ])
+        if 'promo_type' in conditions:
+            result &= set([promo for promo in Promotion.data if promo.promo_type == conditions['promo_type']])
+        if 'detail' in conditions:
+            result &= set([promo for promo in Promotion.data if conditions['detail'] in promo.detail])
+        if 'valid_on' in conditions:
+            result &= set([promo for promo in Promotion.data if conditions['valid_on'] >= promo.start_date and conditions['valid_on'] < promo.end_date ])
+        if 'discount_greater_or_equal' in conditions:
+            result &= set([promo for promo in Promotion.data if promo.value >= conditions['discount_greater_or_equal']])
+        return list(result)
+         
 
     @staticmethod
     def find_by_id(promo_id):
         """ Finds a Promo by it's ID """
-        promos = [promo for promo in Promotion.data if promo.id == promo_id]
-        return promos
+        return [promo for promo in Promotion.data if promo.id == promo_id]
+    
