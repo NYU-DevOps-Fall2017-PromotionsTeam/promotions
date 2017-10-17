@@ -20,7 +20,11 @@ class TestServer(unittest.TestCase):
         pass
 
     def test_get_promotion(self):
-        pass
+        '''Test Getting the Promo with ID = 1 '''
+        resp = self.flask_app.get('/promotions/1')
+        self.assertEqual(resp.status_code, 200)
+        data = json.loads(resp.data)
+        self.assertEqual(data['name'], 'promo_1')
 
     def test_create_promotion(self):
         '''Test Creating simple promotion & one with attributes'''
@@ -69,7 +73,8 @@ class TestServer(unittest.TestCase):
         promo.delete()
 
     def test_delete_promotion(self):
-        pass
-
+        resp = self.app.delete('/promotions/1')
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotEqual(resp.status_code, 404)
 if __name__ == '__main__':
     unittest.main()
