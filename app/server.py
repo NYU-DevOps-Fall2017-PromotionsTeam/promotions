@@ -1,11 +1,11 @@
 from datetime import datetime
-from flask import Flask, jsonify, request, url_for
+from flask import Flask, jsonify, request, url_for, abort, make_response
 from flask_api import status
 import logging
 import os
 import json
-from util import initialize_logging
 
+from util import initialize_logging
 from promotion import Promotion
 
 flask_app = Flask(__name__)
@@ -27,6 +27,13 @@ POST /promotions - creates a new Promotion in the database
 PUT /promotions/{id} - updates a Promotion record in the database
 DELETE /promotions/{id} - deletes a Promotion record in the database
 """
+
+def check_content_type(content_type):
+    """ Checks that the media type is correct """
+    if request.headers['Content-Type'] == content_type:
+        return True
+    flask_app.logger.error('Invalid Content-Type: %s' % request.headers['Content-Type'])
+    abort(415, 'Content-Type must be {}'.format(content_type))
 
 @flask_app.route('/promotions', methods=['GET'])
 def list_promotions():
@@ -50,20 +57,22 @@ def get_promotion(promo_id):
 @flask_app.route('/promotions', methods=['POST'])
 def create_promotion():
     '''Create a New Promotion'''
+    check_content_type('application/json')
     data = request.get_json()
-    promotion = Promotion()
     try:
+        promotion = Promotion()
         promotion.deserialize(data)
+        promotion.save()
+        flask_app.logger.info('CREATE promotion Success')
+        return jsonify(promotion.serialize()), status.HTTP_201_CREATED
     except Exception as e:
         flask_app.logger.info('CREATE promotion failed with error: '+str(e))
         return jsonify(error=str(e)), status.HTTP_400_BAD_REQUEST
-    promotion.save()
-    flask_app.logger.info('CREATE promotion Success')
-    return jsonify(promotion.serialize()), status.HTTP_201_CREATED
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['PUT'])
 def update_promotion(promo_id):
     '''Update an existing Promotion'''
+    check_content_type('application/json')
     promos = Promotion.find_by_id(promo_id)
     if not promos: 
         info = 'Promotion with id=%s not found' % promo_id
@@ -79,32 +88,25 @@ def update_promotion(promo_id):
 def delete_promotion(promo_id):
     '''Delete an existing Promotion'''
     flask_app.logger.info('Request to delete Promo with id: {}'.format(promo_id))
-    
     promos = Promotion.find_by_id(promo_id)
     if not promos: 
         info = 'Promotion with id=%s not found' % promo_id
         flask_app.logger.info(info)
-        return jsonify(error=info), status.HTTP_404_NOT_FOUND
-
+        return jsonify(error=info), status.HTTP_200_OK
     promos[0].delete()
     message = "DELETE promotion with id: {} success".format(promo_id)
     flask_app.logger.info(message)
-    return jsonify(message=message), status.HTTP_204_NO_CONTENT
+    return jsonify(message=message), status.HTTP_200_OK
 
-
-
-@flask_app.route('/promotions/<string:action>', methods=['PUT'])
+@flask_app.route('/promotions/write-to-file', methods=['PUT'])
 def perform_action():
     '''Perform some action on the Promotion Model
        action being implemented: write all promotions in JSON format to a file
     '''
-    if action == 'write-to-file':
-        with open('data.txt', 'w') as outfile:
-            data = [promo.serialize() for promo in Promotion.all()]
-            json.dump(Promotion.data, outfile)
-        return make_response('Promotion State written to \'data.txt\'', 204)
-    else:
-        return make_response('Action Not Found', 404)
+    with open('data.txt', 'w') as outfile:
+        data = [promo.serialize() for promo in Promotion.all()]
+        json.dump(data, outfile)
+    return make_response('', 204)
 
 if __name__ == "__main__":
     initialize_logging(logging.INFO, flask_app)
