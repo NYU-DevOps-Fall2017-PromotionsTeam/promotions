@@ -35,8 +35,8 @@ class Promotion:
             "name": self.name,
             "promo_type": self.promo_type,
             "value": self.value,
-            "start_date": self.start_date.isoformat(sep=' ', timespec='seconds'),
-            "end_date": self.end_date.isoformat(sep=' ', timespec='seconds'),
+            "start_date": self.start_date.isoformat(sep=' ')[:19],
+            "end_date": self.end_date.isoformat(sep=' ')[:19],
             "detail": self.detail
         }
 
