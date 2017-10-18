@@ -93,14 +93,18 @@ def delete_promotion(promo_id):
 
 
 
-@flask_app.route('/promotions/write_to_file', methods=['PUT'])
-def write_to_flie():
+@flask_app.route('/promotions/<string:action>', methods=['PUT'])
+def perform_action():
     '''Perform some action on the Promotion Model
        action being implemented: write all promotions in JSON format to a file
     '''
-    with open('data.txt', 'w') as outfile:
-        json.dump(Promotion.data, outfile)
-    return make_response('', 204)
+    if action == 'write-to-file':
+        with open('data.txt', 'w') as outfile:
+            data = [promo.serialize() for promo in Promotion.all()]
+            json.dump(Promotion.data, outfile)
+        return make_response('Promotion State written to \'data.txt\'', 204)
+    else:
+        return make_response('Action Not Found', 404)
 
 if __name__ == "__main__":
     initialize_logging(logging.INFO, flask_app)
