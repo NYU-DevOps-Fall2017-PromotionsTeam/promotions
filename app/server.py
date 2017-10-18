@@ -26,6 +26,7 @@ GET /promotions/{id} - Returns the Pet with a given promot-id number
 POST /promotions - creates a new Promotion in the database
 PUT /promotions/{id} - updates a Promotion record in the database
 DELETE /promotions/{id} - deletes a Promotion record in the database
+PUT /promotions/write-to-file - writes the current State of the promo model to a file
 """
 
 def check_content_type(content_type):
@@ -39,7 +40,6 @@ def check_content_type(content_type):
 def list_promotions():
     '''List all available Promotions'''
     promos = Promotion.all()
-    # TODO(joe): Add filters here??
     payload = [promo.serialize() for promo in promos]
     flask_app.logger.info("GET all promotions success")
     return jsonify(payload), status.HTTP_200_OK
