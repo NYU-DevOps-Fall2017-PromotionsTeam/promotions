@@ -26,7 +26,7 @@ class TestPromotion(unittest.TestCase):
     def test_all(self):
         pass
 
-    def test_find(self):
+    def test_query(self):
         pass
 
     def test_find_by_id(self):

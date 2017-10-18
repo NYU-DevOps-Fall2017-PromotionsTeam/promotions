@@ -33,53 +33,64 @@ def list_promotions():
     promos = Promotion.all()
     # TODO(joe): Add filters here??
     payload = [promo.serialize() for promo in promos]
-    return jsonify(payload), 200
+    flask_app.logger.info("GET all promotions success")
+    return jsonify(payload), status.HTTP_200_OK
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['GET'])
 def get_promotion(promo_id):
     '''Get a Promotion with id="promo_id" '''
-    promo = Promotion.find(promo_id)
-    if not promo:
-        raise exception.NotFound('Promo with id: {} was not found'.format(promo_id))
-    return jsonify(promo.serialize()), status.HTTP_200_OK
+    promos = Promotion.find_by_id(promo_id)
+    if not promos: 
+        info = 'Promotion with id=%s not found' % promo_id
+        return jsonify(info), status.HTTP_404_NOT_FOUND
+    flask_app.logger.info("GET promotion with id: {} success".format(promo_id))
+    return jsonify(promos[0].serialize()), status.HTTP_200_OK
 
 @flask_app.route('/promotions', methods=['POST'])
 def create_promotion():
     '''Create a New Promotion'''
-    data = dict(request.args)
-    for k, v in data.items():
-        if v: data[k] = v[0] # extract params from len 1 list
+    data = request.get_json()
     promotion = Promotion()
-    promotion.deserialize(data)
+    try:
+        promotion.deserialize(data)
+    except Exception as e:
+        flask_app.logger.info('CREATE promotion failed with error: '+str(e))
+        return jsonify(error=str(e)), status.HTTP_400_BAD_REQUEST
     promotion.save()
     flask_app.logger.info('CREATE promotion Success')
-    flask_app.logger.info(data)
-    data.update({'id': promotion.id})
-    return jsonify(data), status.HTTP_201_CREATED
+    return jsonify(promotion.serialize()), status.HTTP_201_CREATED
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['PUT'])
 def update_promotion(promo_id):
     '''Update an existing Promotion'''
     promos = Promotion.find_by_id(promo_id)
-    if not promos:
+    if not promos: 
         info = 'Promotion with id=%s not found' % promo_id
-        return jsonify(info), status.HTTP_404_NOT_FOUND
+        flask_app.logger.info(info)
+        return jsonify(error=info), status.HTTP_404_NOT_FOUND
     promo = promos[0]
-    data = dict(request.args)
-    for k, v in data.items():
-        if v: data[k] = v[0] # extract params from len 1 list
+    data = request.get_json()
     promo.deserialize(data)
-    flask_app.logger.warning('PUT/Update Success')
-    return jsonify(promo.__dict__), status.HTTP_201_CREATED
+    flask_app.logger.warning('Update Success')
+    return jsonify(promo.serialize()), status.HTTP_200_OK
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['DELETE'])
 def delete_promotion(promo_id):
     '''Delete an existing Promotion'''
     flask_app.logger.info('Request to delete Promo with id: {}'.format(promo_id))
-    promo = Promotion.find_by_id(promo_id)
-    if promo: promo.delete()
-    flask_app.logger.info('DELETE promotion Success')
-    return make_response('', 204)
+    
+    promos = Promotion.find_by_id(promo_id)
+    if not promos: 
+        info = 'Promotion with id=%s not found' % promo_id
+        flask_app.logger.info(info)
+        return jsonify(error=info), status.HTTP_404_NOT_FOUND
+
+    promos[0].delete()
+    message = "DELETE promotion with id: {} success".format(promo_id)
+    flask_app.logger.info(message)
+    return jsonify(message=message), status.HTTP_204_NO_CONTENT
+
+
 
 @flask_app.route('/promotions/<string:action>', methods=['PUT'])
 def operate_on_promotions():
