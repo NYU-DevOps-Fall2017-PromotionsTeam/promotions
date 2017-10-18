@@ -37,12 +37,6 @@ def list_promotions():
     flask_app.logger.info("GET all promotions success")
     return jsonify(payload), status.HTTP_200_OK
 
-@flask_app.route('/promotions/search', methods=['GET'])
-def search():
-    filters = dict(request.args)
-    # do filter logic here...
-    promos = Promotion.query(filters)
-
 @flask_app.route('/promotions/<int:promo_id>', methods=['GET'])
 def get_promotion(promo_id):
     '''Get a Promotion with id="promo_id" '''
