@@ -76,5 +76,9 @@ class TestServer(unittest.TestCase):
         resp = self.app.delete('/promotions/1')
         self.assertEqual(resp.status_code, 200)
         self.assertNotEqual(resp.status_code, 404)
+
+    def test_write_to_file(self):
+        pass
+    
 if __name__ == '__main__':
     unittest.main()

@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request, url_for
 from flask_api import status
 import logging
 import os
+import json
 from util import initialize_logging
 
 from promotion import Promotion
@@ -92,10 +93,14 @@ def delete_promotion(promo_id):
 
 
 
-@flask_app.route('/promotions/<string:action>', methods=['PUT'])
-def operate_on_promotions():
-    '''Perform some action on the Promotion Model'''
-    pass
+@flask_app.route('/promotions/write_to_file', methods=['PUT'])
+def write_to_flie():
+    '''Perform some action on the Promotion Model
+       action being implemented: write all promotions in JSON format to a file
+    '''
+    with open('data.txt', 'w') as outfile:
+        json.dump(Promotion.data, outfile)
+    return make_response('', 204)
 
 if __name__ == "__main__":
     initialize_logging(logging.INFO, flask_app)
