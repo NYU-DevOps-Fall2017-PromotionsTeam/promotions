@@ -39,7 +39,8 @@ def check_content_type(content_type):
 @flask_app.route('/promotions', methods=['GET'])
 def list_promotions():
     '''List all available Promotions'''
-    promos = Promotion.all()
+    filters = dict(request.args)
+    promos = Promotion.query(filters)
     payload = [promo.serialize() for promo in promos]
     flask_app.logger.info("GET all promotions success")
     return jsonify(payload), status.HTTP_200_OK
@@ -90,13 +91,11 @@ def delete_promotion(promo_id):
     flask_app.logger.info('Request to delete Promo with id: {}'.format(promo_id))
     promos = Promotion.find_by_id(promo_id)
     if not promos: 
-        info = 'Promotion with id=%s not found' % promo_id
-        flask_app.logger.info(info)
-        return jsonify(error=info), status.HTTP_200_OK
+        flask_app.logger.info("No content")
+        return jsonify(msg='No content'), 204
     promos[0].delete()
-    message = "DELETE promotion with id: {} success".format(promo_id)
-    flask_app.logger.info(message)
-    return jsonify(message=message), status.HTTP_200_OK
+    flask_app.logger.info('No content')
+    return jsonify(msg='No content'), 204
 
 @flask_app.route('/promotions/write-to-file', methods=['PUT'])
 def perform_action():
