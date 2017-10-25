@@ -58,6 +58,7 @@ class TestServer(unittest.TestCase):
     def test_create_promotion(self):
         '''Test Creating simple promotion & one with attributes'''
         response = self.app.post('/promotions', data=json.dumps({}), content_type='application/json')
+        self.assertEqual(response.status_code, 201)
         # Get promotion back
         promo = Promotion.all()[0]
         self.assertIsNotNone(promo)
@@ -82,6 +83,7 @@ class TestServer(unittest.TestCase):
         }
         data = json.dumps(params)
         response = self.app.post('/promotions', data=data, content_type='application/json')
+        self.assertEqual(response.status_code, 201)
         # Get promotion back from Model
         promo = Promotion.all()[0]
         self.assertIsNotNone(promo)
@@ -144,6 +146,7 @@ class TestServer(unittest.TestCase):
         _id = promo.id
         data = {'name': 'NEWNAME', 'value': 11, 'detail': 'TEST'}
         response = self.app.put('/promotions/'+str(_id), data=json.dumps(data), content_type='application/json')
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(promo.name, 'NEWNAME')
         self.assertEqual(promo.value, 11)
         self.assertEqual(promo.detail, 'TEST')
@@ -165,14 +168,14 @@ class TestServer(unittest.TestCase):
         '''Test Delete'''
         resp = self.app.delete('/promotions/%d' % 100)
         self.assertEqual(Promotion.all(), [])
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 204)
         promo = Promotion()
         promo.save()
         self.assertEqual(len(Promotion.all()), 1)
         _id = promo.id
         resp = self.app.delete('/promotions/%d' % _id)
         self.assertEqual(Promotion.all(), [])
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 204)
 
     def test_write_to_file(self):
         '''Test Write to file'''
