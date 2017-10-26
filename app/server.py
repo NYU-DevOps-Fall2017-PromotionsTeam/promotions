@@ -78,7 +78,7 @@ def update_promotion(promo_id):
     if not promos: 
         info = 'Promotion with id=%s not found' % promo_id
         flask_app.logger.info(info)
-        return jsonify(error=info), status.HTTP_404_NOT_FOUND
+        return jsonify(status=404, error='Not Found', message=info), 404
     promo = promos[0]
     data = request.get_json()
     promo.deserialize(data)
@@ -90,12 +90,9 @@ def delete_promotion(promo_id):
     '''Delete an existing Promotion'''
     flask_app.logger.info('Request to delete Promo with id: {}'.format(promo_id))
     promos = Promotion.find_by_id(promo_id)
-    if not promos: 
-        flask_app.logger.info("No content")
-        return jsonify(msg='No content'), 204
-    promos[0].delete()
-    flask_app.logger.info('No content')
-    return jsonify(msg='No content'), 204
+    if promos:
+        promos[0].delete()
+    return make_response('', status.HTTP_204_NO_CONTENT)
 
 @flask_app.route('/promotions/write-to-file', methods=['PUT'])
 def perform_action():
