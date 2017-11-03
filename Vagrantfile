@@ -84,7 +84,7 @@ Vagrant.configure("2") do |config|
   # Setup a Python development environment
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get install -y git python3-pip python-dev build-essential python3-venv
+    apt-get install -y git python3-pip python-dev build-essential python3-venv cf-cli
     pip3 install --upgrade pip3
     apt-get -y autoremove
     sudo -H -u ubuntu echo "colorscheme desert" > ~/.vimrc
