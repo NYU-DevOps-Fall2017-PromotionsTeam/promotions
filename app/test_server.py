@@ -59,6 +59,7 @@ class TestServer(unittest.TestCase):
         '''Test Creating simple promotion & one with attributes'''
         response = self.app.post('/promotions', data=json.dumps({}), content_type='application/json')
         self.assertEqual(response.status_code, 201)
+        
         # Get promotion back
         promo = Promotion.all()[0]
         self.assertIsNotNone(promo)
