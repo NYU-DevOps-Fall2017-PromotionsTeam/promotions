@@ -83,12 +83,14 @@ Vagrant.configure("2") do |config|
   ######################################################################
   # Setup a Python development environment
   config.vm.provision "shell", inline: <<-SHELL
+    wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+    echo "deb http://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
     apt-get update
-    apt-get install -y git python3-pip python-dev build-essential python3-venv cf-cli
-    pip3 install --upgrade pip3
+    apt-get install -y git python3-pip python3-dev build-essential python3-venv cf-cli
+    sudo pip3 install --upgrade pip
     apt-get -y autoremove
-    sudo -H -u ubuntu echo "colorscheme desert" > ~/.vimrc
-    sudo -H -u ubuntu echo "set background=dark" > ~/.vimrc
+    sudo -H -u ubuntu echo "colorscheme desert" >> ~/.vimrc
+    sudo -H -u ubuntu echo "set background=dark" >> ~/.vimrc
     cd /vagrant
     sudo pip3 install -r requirements.txt
   SHELL
