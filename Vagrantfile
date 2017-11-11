@@ -96,19 +96,18 @@ Vagrant.configure("2") do |config|
   SHELL
 
   ######################################################################
-  # Add Redis docker container
+  # Add PostgreSQL docker container
   ######################################################################
   config.vm.provision "shell", inline: <<-SHELL
-    # Prepare Redis data share
-    sudo mkdir -p /var/lib/redis/data
-    sudo chown ubuntu:ubuntu /var/lib/redis/data
+  # Prepare PostgreSQL data share
+    sudo mkdir -p /var/lib/postgresql/data
+    sudo chown ubuntu:ubuntu /var/lib/postgresql/data
   SHELL
-
-  # Add Redis docker container
+  # Add PostgreSQL docker container
   config.vm.provision "docker" do |d|
-    d.pull_images "redis:alpine"
-    d.run "redis:alpine",
-      args: "--restart=always -d --name redis -h redis -p 6379:6379 -v /var/lib/redis/data:/data"
+    d.pull_images "postgres"
+    d.run "postgres",
+      args: "-d --name postgres -p 5432:5432 -v /var/lib/postgresql/data:/var/lib/postgresql/data"
   end
 
 
