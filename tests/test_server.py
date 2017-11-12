@@ -5,48 +5,42 @@ import os
 import unittest
 
 from app.models import Promotion
-from app.server import flask_app
+from app import server
 
 
 class TestServer(unittest.TestCase):
 
     def setUp(self):
         '''Setup Test Model and Client'''
-        self.app = flask_app.test_client()
+        self.app = server.flask_app.test_client()
         self.app.debug = False
-        # TODO(joe): Change this when persistence is added
-        Promotion.data = []
-
-    def tearDown(self):
-        '''TearDown Test Model'''
-        # TODO(joe): Change this when persistence is added
-        Promotion.data = [] # Final Clean up
+        server.init_db()
+        server.data_reset()
+        server.data_load(1234,{'name':'test1'})
+        server.data_load(5678,{'name':'test2'})
 
     def test_list_promotions(self):
         '''Test list all promotions'''
         resp = self.app.get('/promotions')
         data = json.loads(resp.data.decode('utf-8'))
-        self.assertEqual(data, [])
-        self.assertEqual(len(data), 0)
-        Promotion().save()
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 2)
+
+        server.data_reset()
         resp = self.app.get('/promotions')
         data = json.loads(resp.data.decode('utf-8'))
-        self.assertIsInstance(data, list)
-        self.assertEqual(len(data), 1)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(data, [])
 
     def test_get_promotion(self):
         '''Test Getting the Promo with ID = 1 '''
-        promo = Promotion()
-        promo.id , promo.detail = 1, 'TEST'
-        promo.save()
-        resp = self.app.get('/promotions/1')
+        resp = self.app.get('/promotions/1234')
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data.decode('utf-8'))
         self.assertIsInstance(data, dict)
-        self.assertEqual(data['name'], 'default')
-        self.assertEqual(data['detail'], 'TEST')
-        self.assertEqual(data['value'], 0.0)
-        self.assertEqual(data['id'], 1)
+        self.assertEqual(data['name'], 'test1')
+        self.assertEqual(data['id'], 1234)
 
     def test_bad_get_by_id(self):
         '''Bad get by Id'''
@@ -63,13 +57,17 @@ class TestServer(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertTrue(location_pattern.match(response.headers['Location']))
         self.assertIsNotNone(response.data)
-        resp_promo = json.loads(response.data.decode('utf-8'))
-        self.assertEqual('default', resp_promo['name'])
-        self.assertEqual('$', resp_promo['promo_type'])
-        self.assertEqual(0.0, float(resp_promo['value']))
-        self.assertEqual('n/a', resp_promo['detail'])
-        self.assertEqual(resp_promo['start_date'], datetime.max.isoformat(sep=' ')[:19])
-        self.assertEqual(resp_promo['end_date'], datetime.max.isoformat(sep=' ')[:19])
+
+        data = json.loads(response.data.decode('utf-8'))
+        promo_id = data['id']
+        resp = self.app.get('/promotions/{}'.format(promo_id))
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.app.get('/promotions')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 3)
+
     
     def test_create_promotion2(self):
         '''Test Create With Parameters'''
@@ -84,15 +82,27 @@ class TestServer(unittest.TestCase):
         data = json.dumps(params)
         response = self.app.post('/promotions', data=data, content_type='application/json')
         resp_data = json.loads(response.data.decode('utf-8'))
+
         self.assertEqual(response.status_code, 201)
+        location_pattern = re.compile('http://localhost/promotions/\d*')
+        self.assertTrue(location_pattern.match(response.headers['Location']))
+        
         self.assertIsNotNone(resp_data)
         self.assertEqual(resp_data['name'], 'test')
         self.assertEqual(resp_data['promo_type'], '%')
-        self.assertIsInstance(float(resp_data['value']), float)
-        self.assertEqual(float(resp_data['value']), 10.0)
+        self.assertEqual(resp_data['value'], 10.0)
         self.assertEqual(resp_data['detail'], 'test')
-        self.assertEqual(resp_data['start_date'], datetime(2017, 1, 1, 11, 11, 11).isoformat(sep=' '))
-        self.assertEqual(resp_data['end_date'], datetime(2018, 2, 2, 11, 11, 11).isoformat(sep=' '))
+        self.assertEqual(resp_data['start_date'], '2017-01-01 11:11:11')
+        self.assertEqual(resp_data['end_date'], '2018-02-02 11:11:11')
+
+        promo_id = resp_data['id']
+        resp = self.app.get('/promotions/{}'.format(promo_id))
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.app.get('/promotions')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 3)
 
     def test_bad_create(self):
         '''bad creation'''
@@ -107,19 +117,21 @@ class TestServer(unittest.TestCase):
         data = json.dumps(params)
         resp = self.app.post('/promotions', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, 400) 
+        
         params = {
             'name': 'test',
             'value': 10.0,
             'detail': 'test',
-            'promo_type': 'A',
+            'promo_type': 'A', # bad promo type
             'start_date': '2017-01-01 11:11:11',
             'end_date': '2018-02-02 11:11:11'
         }
         resp = self.app.post('/promotions', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, 400) 
+
         params = {
             'name': 'test',
-            'value': "SOME STRING",
+            'value': "SOME STRING", # bad value type
             'detail': 'test',
             'promo_type': '%',
             'start_date': '2017-01-01 11:11:11',
@@ -130,23 +142,23 @@ class TestServer(unittest.TestCase):
 
     def test_update_promotion(self):
         '''Do a put to update some data'''
-        params = {
-            'name': "OLDNAME",
+        data = {
+            'name': "update_test",
             'value': 10,
-            'detail': 'test'
+            'end_date': '2018-02-02 11:11:11'
         }
-        promo = Promotion()
-        promo.deserialize(params)
-        promo.save()
-        _id = promo.id
-        data = {'name': 'NEWNAME', 'value': 11, 'detail': 'TEST'}
-        response = self.app.put('/promotions/'+str(_id), data=json.dumps(data), content_type='application/json')
-        resp_data = json.loads(response.data.decode('utf-8'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(resp_data['name'], 'NEWNAME')
-        self.assertEqual(float(resp_data['value']), 11)
-        self.assertEqual(resp_data['detail'], 'TEST')
+        resp = self.app.put('/promotions/1234', data=json.dumps(data), content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertEqual(data['name'],'update_test')
+        self.assertEqual(data['value'],10)
+        self.assertEqual(data['end_date'], '2018-02-02 11:11:11')
 
+        resp = self.app.get('/promotions')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 2)
+        
     def test_bad_update(self):
         '''Test Bad update, ID not found'''
         data = {'name': 'NEWNAME'}
@@ -155,18 +167,30 @@ class TestServer(unittest.TestCase):
 
     def test_delete_promotion(self):
         '''Test Delete'''
-        resp = self.app.delete('/promotions/%d' % 100)
+        resp = self.app.delete('/promotions/{}'.format(8888))
         self.assertEqual(resp.status_code, 204)
-        promo = Promotion()
-        promo.save()
-        _id = promo.id
-        self.assertEqual(len(Promotion.data), 1)
-        resp = self.app.delete('/promotions/%d' % _id)
-        self.assertEqual(resp.status_code, 204)
-        self.assertEqual(len(Promotion.data),0)
+        resp = self.app.get('/promotions')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 2)
 
+        resp = self.app.delete('/promotions/{}'.format(1234))
+        self.assertEqual(resp.status_code, 204)
+        resp = self.app.get('/promotions')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 1)
+
+        resp = self.app.delete('/promotions/{}'.format(5678))
+        self.assertEqual(resp.status_code, 204)
+        resp = self.app.get('/promotions')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 0)
+
+    '''
     def test_write_to_file(self):
-        '''Test Write to file'''
+        #Test Write to file
         promo = Promotion()
         promo.save()
         resp = self.app.put('/promotions/write-to-file')
@@ -176,6 +200,7 @@ class TestServer(unittest.TestCase):
             test_text = valid_file.readline()
         self.assertEqual(valid_text, test_text)
         os.remove('./data.txt')  # Clean up
+    '''
 
     def test_check_content_type(self):
         '''Basic Check to ensure util func is working'''

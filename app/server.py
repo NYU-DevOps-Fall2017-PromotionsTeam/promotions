@@ -40,22 +40,23 @@ def check_content_type(content_type):
 def list_promotions():
     '''List all available Promotions'''
     #TODO
-    filters = dict(request.args)
-    promos = Promotion.query(filters)
-    payload = [promo.serialize() for promo in promos]
+    #filters = dict(request.args)
+    #promos = Promotion.query(filters)
+    payload = Promotion.all()
+    payload = [promo.serialize() for promo in payload]
     flask_app.logger.info("GET all promotions success")
     return jsonify(payload), 200
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['GET'])
 def get_promotion(promo_id):
     '''Get a Promotion with id="promo_id" '''
-    promos = Promotion.find_by_id(promo_id)
-    if not promos: 
+    promo = Promotion.find_by_id(promo_id)
+    if not promo: 
         info = 'Promotion with id: {} was not found'.format(promo_id)
         flask_app.logger.info(info)
         return jsonify(error=info), 404
     flask_app.logger.info("GET promotion with id: {} success".format(promo_id))
-    return jsonify(promos[0].serialize()), 200
+    return jsonify(promo.serialize()), 200
 
 @flask_app.route('/promotions', methods=['POST'])
 def create_promotion():
@@ -78,34 +79,54 @@ def create_promotion():
 def update_promotion(promo_id):
     '''Update an existing Promotion'''
     check_content_type('application/json')
-    promos = Promotion.find_by_id(promo_id)
-    if not promos: 
+    promo = Promotion.find_by_id(promo_id)
+    if not promo: 
         info = 'Promotion with id: {} was not found'.format(promo_id)
         flask_app.logger.info(info)
         return jsonify(error=info), 404
-    promo = promos[0]
     data = request.get_json()
     promo.deserialize(data)
+    promo.save()
     flask_app.logger.warning('Update Success')
     return jsonify(promo.serialize()), 200
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['DELETE'])
 def delete_promotion(promo_id):
     '''Delete an existing Promotion'''
-    promos = Promotion.find_by_id(promo_id)
-    if promos:
-        promos[0].delete()
+    promo = Promotion.find_by_id(promo_id)
+    if promo:
+        promo.delete()
     return '', 204
 
 @flask_app.route('/promotions/write-to-file', methods=['PUT'])
 def perform_action():
     '''Perform some action on the Promotion Model
        action being implemented: write all promotions in JSON format to a file
-    '''
     with open('data.txt', 'w') as outfile:
         data = [promo.serialize() for promo in Promotion.all()]
         json.dump(data, outfile)
     return make_response('', 204)
+    '''
+    pass
+
+@flask_app.route('/promotions/reset', methods=['DELETE'])
+def delete_all_promotion():
+    '''Delete an existing Promotion'''
+    Promotion.remove_all()
+    return '', 204
+
+@flask_app.before_first_request
+def init_db(redis=None):
+    """ Initlaize the model """
+    Promotion.init_db(redis)
+
+def data_reset():
+    Promotion.remove_all()
+
+def data_load(promo_id,data):
+    promo = Promotion(promo_id)
+    promo.deserialize(data)
+    promo.save()
 
 if __name__ == "__main__":
     initialize_logging(logging.INFO, flask_app)
