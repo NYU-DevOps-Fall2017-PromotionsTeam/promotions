@@ -5,8 +5,8 @@ import logging
 import os
 import json
 
-from util import initialize_logging
-from promotion import Promotion
+from app.util import initialize_logging
+from app.models import Promotion
 
 flask_app = Flask(__name__)
 

@@ -4,8 +4,8 @@ import re
 import os
 import unittest
 
-from promotion import Promotion
-from server import flask_app
+from app.models import Promotion
+from app.server import flask_app
 
 
 class TestServer(unittest.TestCase):

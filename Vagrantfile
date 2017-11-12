@@ -96,19 +96,35 @@ Vagrant.configure("2") do |config|
   SHELL
 
   ######################################################################
-  # Add PostgreSQL docker container
+  # Add Redis docker container
   ######################################################################
   config.vm.provision "shell", inline: <<-SHELL
-  # Prepare PostgreSQL data share
-    sudo mkdir -p /var/lib/postgresql/data
-    sudo chown ubuntu:ubuntu /var/lib/postgresql/data
+  # Prepare Redis data share
+  sudo mkdir -p /var/lib/redis/data
+  sudo chown ubuntu:ubuntu /var/lib/redis/data
   SHELL
-  # Add PostgreSQL docker container
+
+  # Add Redis docker container
   config.vm.provision "docker" do |d|
-    d.pull_images "postgres"
-    d.run "postgres",
-      args: "-d --name postgres -p 5432:5432 -v /var/lib/postgresql/data:/var/lib/postgresql/data"
+    d.pull_images "redis:alpine"
+    d.run "redis:alpine",
+      args: "--restart=always -d --name redis -h redis -p 6379:6379 -v /var/lib/redis/data:/data"
   end
+
+  ######################################################################
+  # Add PostgreSQL docker container
+  ######################################################################
+  #config.vm.provision "shell", inline: <<-SHELL
+  # Prepare PostgreSQL data share
+  #  sudo mkdir -p /var/lib/postgresql/data
+  #  sudo chown ubuntu:ubuntu /var/lib/postgresql/data
+  #SHELL
+  # Add PostgreSQL docker container
+  #config.vm.provision "docker" do |d|
+  #  d.pull_images "postgres"
+  #  d.run "postgres",
+  #    args: "-d --name postgres -p 5432:5432 -v /var/lib/postgresql/data:/var/lib/postgresql/data"
+  #end
 
 
   # Enable provisioning with a shell script. Additional provisioners such as
