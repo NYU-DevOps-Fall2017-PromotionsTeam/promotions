@@ -109,12 +109,6 @@ def perform_action():
     '''
     pass
 
-@flask_app.route('/promotions/reset', methods=['DELETE'])
-def delete_all_promotion():
-    '''Delete an existing Promotion'''
-    Promotion.remove_all()
-    return '', 204
-
 @flask_app.before_first_request
 def init_db(redis=None):
     """ Initlaize the model """

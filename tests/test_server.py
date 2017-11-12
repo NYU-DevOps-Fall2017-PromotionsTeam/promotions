@@ -4,7 +4,6 @@ import re
 import os
 import unittest
 
-from app.models import Promotion
 from app import server
 
 
