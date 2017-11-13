@@ -17,19 +17,30 @@ Scenario: List All Promotions
     And I should see "promo2"
     And I should see "promo3"
 
-Scenario: Update a promotion
+Scenario: Get promotion with id
+    When I retrieve "promotions" with id "2"
+    Then I should get a response code "200"
+    And I should see "promo3"
+
+Scenario: Get Or Update promotion with invalid id
+    When I retrieve "promotions" with id "42"
+    Then I should get a response code "404"
+    When I visit "promotions"
+    Then I will not see a promotion with "id" as "42"
+
+Scenario: Update a promotion's value
     When I retrieve "promotions" with id "1"
     And I change "value" to "100.0"
     And I update "promotions" with id "1"
     Then I will see "promo2" with "value" as "100.0"
 
-Scenario: Update a promotion
+Scenario: Update a promotion's promo_type
     When I retrieve "promotions" with id "0"
     And I change "promo_type" to "%"
     And I update "promotions" with id "0"
     Then I will see "promo2" with "promo_type" as "%"
 
-Scenario: Delete a promotion
+Scenario: Delete a promotion with valid id
     When I visit "promotions"
     Then I should see "promo1"
     When I delete "promotions" with id "0"
@@ -40,11 +51,11 @@ Scenario: Delete a promotion
     And I should not see "promo1"
     And There should be "2" promotions
 
-Scenario: Delete a promotion
+Scenario: Delete a promotion with an invalid id
     When I delete "promotions" with id "99"
     Then I should get a response code "204"
 
-Scenario: Create a promotion
+Scenario: Create a promotion with default characteristics
     When I create a promotion
     Then I should get a response code "201"
     When I visit "promotions"
@@ -54,3 +65,7 @@ Scenario: Create a promotion
     And I should see "promo3"
     And I should see "default"
     Then I reset the server db for further tests
+
+Scenario: Create a Promotion using Incorrect Header
+    When I call POST with Incorrect content-type
+    Then I should get a response code "415"

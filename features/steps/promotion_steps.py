@@ -44,7 +44,6 @@ def step_impl(context, url, id):
     context.resp = context.app.get(BASE_URL + target_url)
     context.data = json.loads(context.resp.data.decode('utf-8'))
     assert isinstance(context.data, dict)
-    assert context.resp.status_code == 200
 
 @when(u'I update "{url}" with id "{id}"')
 def step_impl(context, url, id):
@@ -70,6 +69,14 @@ def step_impl(context, url, id):
 def step_impl(context):
     target_url = 'promotions'
     headers = {'content-type': 'application/json'}
+    data=json.dumps({})
+    context.resp = context.app.post(BASE_URL + target_url, data=data, headers=headers)
+
+@when(u'I call POST with Incorrect content-type')
+def step_impl(context):
+    target_url = 'promotions'
+    #headers = {'content-type': 'application/json'}
+    headers = {'content-type': 'not_application/json'}
     data=json.dumps({})
     context.resp = context.app.post(BASE_URL + target_url, data=data, headers=headers)
 
@@ -121,6 +128,17 @@ def step_impl(context, promo_name, key, value):
                 break
     else:
         assert data[key] == value
+
+@then(u'I will not see a promotion with "{key}" as "{value}"')
+def step_impl(context, key, value):
+    data = json.loads(context.resp.data.decode('utf-8'))
+    if key == 'value':
+        value = float(value)
+    if isinstance(data, list):
+        for promo in data:
+            assert promo[key] != value
+    else:
+        assert data[key] != value
 
 @then(u'I reset the server db for further tests')
 def step_impl(context):
