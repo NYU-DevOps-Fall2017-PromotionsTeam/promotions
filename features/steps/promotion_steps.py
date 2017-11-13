@@ -45,6 +45,17 @@ def step_impl(context, url, id):
     context.data = json.loads(context.resp.data.decode('utf-8'))
     assert isinstance(context.data, dict)
 
+@when(u'I retrieve "promotions" with "{key}" as "{value}"')
+def step_impl(context, key, value):
+    if key == 'value':
+        value = float(value)
+    target_url = 'promotions?{}={}'.format(key, value)
+    context.resp = context.app.get(BASE_URL + target_url)
+    context.data = json.loads(context.resp.data.decode('utf-8'))
+    assert isinstance(context.data, list)
+    print(context.data)
+    assert len(context.data) == 1
+
 @when(u'I update "{url}" with id "{id}"')
 def step_impl(context, url, id):
     target_url = '{}/{}'.format(url, id)

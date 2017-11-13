@@ -22,6 +22,11 @@ Scenario: Get promotion with id
     Then I should get a response code "200"
     And I should see "promo3"
 
+#Scenario: Query Promotion Based on Attribute
+#    When I retrieve "promotions" with "value" as "10.0"
+#    Then I should get a response code "200"
+#    And I should see "promo1"
+
 Scenario: Get Or Update promotion with invalid id
     When I retrieve "promotions" with id "42"
     Then I should get a response code "404"
