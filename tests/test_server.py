@@ -18,6 +18,9 @@ class TestServer(unittest.TestCase):
         server.data_load(1234,{'name':'test1'})
         server.data_load(5678,{'name':'test2'})
 
+    def tearDown(self):
+        server.data_reset()
+
     def test_list_promotions(self):
         '''Test list all promotions'''
         resp = self.app.get('/promotions')
