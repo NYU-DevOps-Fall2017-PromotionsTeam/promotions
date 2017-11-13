@@ -73,7 +73,7 @@ def create_promotion():
         response.headers['Location'] = url_for('get_promotion', promo_id=promotion.id, _external=True)
         return response
     except Exception as e:
-        return jsonify(error=str(e)),400
+        return jsonify(error=str(e)), 400
 
 @flask_app.route('/promotions/<int:promo_id>', methods=['PUT'])
 def update_promotion(promo_id):
