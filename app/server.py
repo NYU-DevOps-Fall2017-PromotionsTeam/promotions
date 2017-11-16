@@ -36,6 +36,17 @@ def check_content_type(content_type):
     flask_app.logger.error('Invalid Content-Type: %s' % request.headers['Content-Type'])
     abort(415, 'Content-Type must be {}'.format(content_type))
 
+@flask_app.route('/', methods=['GET'])
+def list_promotions():
+    '''The Root URL for Promotion Service'''
+    #TODO
+    #filters = dict(request.args)
+    #promos = Promotion.query(filters)
+    payload = Promotion.all()
+    payload = [promo.serialize() for promo in payload]
+    flask_app.logger.info("GET all promotions success")
+    return jsonify(payload), 200
+    
 @flask_app.route('/promotions', methods=['GET'])
 def list_promotions():
     '''List all available Promotions'''
