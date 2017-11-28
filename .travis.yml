@@ -1,0 +1,19 @@
+language: python
+python:
+  - "3.5"
+
+# command to install dependencies
+install: "pip install -r requirements.txt"
+
+# commands to run tests
+before_script: redis-cli ping
+
+script:
+  - nosetests
+  - behave
+
+after_success:
+  - coverage report -m
+
+services:
+  - redis-server
