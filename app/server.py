@@ -107,16 +107,11 @@ def delete_promotion(promo_id):
         promo.delete()
     return '', 204
 
-@flask_app.route('/promotions/write-to-file', methods=['PUT'])
-def perform_action():
-    '''Perform some action on the Promotion Model
-       action being implemented: write all promotions in JSON format to a file
-    with open('data.txt', 'w') as outfile:
-        data = [promo.serialize() for promo in Promotion.all()]
-        json.dump(data, outfile)
-    return make_response('', 204)
-    '''
-    pass
+@flask_app.route('/promotions/delete-all', methods=['PUT'])
+def delete_all_promotions():
+    '''Clean out the Current Model and delete all objects contained'''
+    Promotion.remove_all()
+    return make_response(jsonify(''), status.HTTP_204_NO_CONTENT)
 
 @flask_app.before_first_request
 def init_db(redis=None):
