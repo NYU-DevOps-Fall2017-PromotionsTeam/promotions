@@ -13,7 +13,7 @@ script:
   - behave
 
 after_success:
-  - coverage report -m
+  - codecov
 
 services:
   - redis-server
