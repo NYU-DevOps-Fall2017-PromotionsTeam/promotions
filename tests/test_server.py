@@ -21,6 +21,19 @@ class TestServer(unittest.TestCase):
     def tearDown(self):
         server.data_reset()
 
+    def test_index(self):
+        '''Test list all promotions'''
+        resp = self.app.get('/')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 2)
+        server.data_reset()
+        resp = self.app.get('/promotions')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(data, [])
+
     def test_list_promotions(self):
         '''Test list all promotions'''
         resp = self.app.get('/promotions')
@@ -190,19 +203,27 @@ class TestServer(unittest.TestCase):
         self.assertIsInstance(data, list)
         self.assertEqual(len(data), 0)
 
-    '''
-    def test_write_to_file(self):
-        #Test Write to file
-        promo = Promotion()
-        promo.save()
-        resp = self.app.put('/promotions/write-to-file')
+    def test_delete_all_promotions(self):
+        '''Test action performed on Model (delete all)'''
+        resp = self.app.put('/promotions/delete-all')
         self.assertEqual(resp.status_code, 204)
-        valid_text = json.dumps([promo.serialize()])
-        with open('data.txt', 'r') as valid_file:
-            test_text = valid_file.readline()
-        self.assertEqual(valid_text, test_text)
-        os.remove('./data.txt')  # Clean up
-    '''
+        resp = self.app.get('/promotions')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 0)
+
+    def test_delete_all_promotions_fail(self):
+        '''Test action performed on Model (delete all)'''
+        resp = self.app.put('/promotions/delete-all')
+        self.assertEqual(resp.status_code, 204)
+        resp = self.app.get('/promotions')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 0)
+        resp = self.app.put('/promotions/delete-all')
+        self.assertEqual(resp.status_code, 204)
 
     def test_check_content_type(self):
         '''Basic Check to ensure util func is working'''
