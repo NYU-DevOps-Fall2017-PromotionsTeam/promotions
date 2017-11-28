@@ -80,6 +80,11 @@ def step_impl(context):
     data=json.dumps({})
     context.resp = context.app.post(BASE_URL + target_url, data=data, headers=headers)
 
+@when(u'I send a PUT request to \'/promotions/delete-all\'')
+def step_impl(context):
+    target_url = 'promotions/delete-all'
+    context.resp = context.app.put(BASE_URL + target_url)
+
 #########################################
 # THEN STATEMENTS                       #
 #########################################
@@ -92,6 +97,7 @@ def step_impl(context, code):
 @then(u'There should be "{count}" promotions')
 def step_impl(context, count):
     count = int(count)
+    print(count)
     data = json.loads(context.resp.data.decode('utf-8'))
     if isinstance(data, list):
         assert len(data) == count

@@ -69,3 +69,9 @@ Scenario: Create a promotion with default characteristics
 Scenario: Create a Promotion using Incorrect Header
     When I call POST with Incorrect content-type
     Then I should get a response code "415"
+
+Scenario: Action-Delete all promotions in service
+    When I send a PUT request to '/promotions/delete-all'
+    Then I should get a response code "204"
+    When I visit "promotions"
+    Then There should be "0" promotions
