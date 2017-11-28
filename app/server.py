@@ -37,11 +37,9 @@ def check_content_type(content_type):
     abort(415, 'Content-Type must be {}'.format(content_type))
 
 @flask_app.route('/', methods=['GET'])
-def list_promotions():
+def index():
     '''The Root URL for Promotion Service'''
-    #TODO
-    #filters = dict(request.args)
-    #promos = Promotion.query(filters)
+    #TODO(anyone): Make a better Home URL?
     payload = Promotion.all()
     payload = [promo.serialize() for promo in payload]
     flask_app.logger.info("GET all promotions success")
