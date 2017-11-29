@@ -39,11 +39,7 @@ def check_content_type(content_type):
 @flask_app.route('/', methods=['GET'])
 def index():
     '''The Root URL for Promotion Service'''
-    #TODO(anyone): Make a better Home URL?
-    payload = Promotion.all()
-    payload = [promo.serialize() for promo in payload]
-    flask_app.logger.info("GET all promotions success")
-    return jsonify(payload), 200
+    return flask_app.send_static_file('index.html')
     
 @flask_app.route('/promotions', methods=['GET'])
 def list_promotions():
