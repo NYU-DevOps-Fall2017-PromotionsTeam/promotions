@@ -24,15 +24,7 @@ class TestServer(unittest.TestCase):
     def test_index(self):
         '''Test list all promotions'''
         resp = self.app.get('/')
-        data = json.loads(resp.data.decode('utf-8'))
         self.assertEqual(resp.status_code, 200)
-        self.assertIsInstance(data, list)
-        self.assertEqual(len(data), 2)
-        server.data_reset()
-        resp = self.app.get('/promotions')
-        data = json.loads(resp.data.decode('utf-8'))
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(data, [])
 
     def test_list_promotions(self):
         '''Test list all promotions'''
