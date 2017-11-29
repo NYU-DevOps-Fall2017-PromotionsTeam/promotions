@@ -26,7 +26,7 @@ GET /promotions/{id} - Returns the Pet with a given promot-id number
 POST /promotions - creates a new Promotion in the database
 PUT /promotions/{id} - updates a Promotion record in the database
 DELETE /promotions/{id} - deletes a Promotion record in the database
-PUT /promotions/write-to-file - writes the current State of the promo model to a file
+PUT /promotions/delete-all - delete all promotions in the database
 """
 
 def check_content_type(content_type):
@@ -111,7 +111,7 @@ def delete_all_promotions():
 
 @flask_app.before_first_request
 def init_db(redis=None):
-    """ Initlaize the model """
+    """ Initialize the model """
     Promotion.init_db(redis)
 
 def data_reset():
