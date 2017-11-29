@@ -3,9 +3,18 @@ import requests
 from behave import *
 import json
 from app import server
+from selenium import webdriver
 
+#########################################
+# ENVIRONMENT SETUP                      #
+#########################################
 BASE_URL = getenv('BASE_URL', 'http://localhost:5001/')
 #BASE_URL = getenv('BASE_URL', '/')
+def before_all(context):
+    """Executed once before all tests"""
+    context.driver = webdriver.Chrome(executable_path=r"chromedriver.exe")
+    context.driver.set_windows_size(1120, 1120)
+    context.base_url = BASE_URL
 
 #########################################
 # GIVEN STATEMENTS                      #
