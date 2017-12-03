@@ -1,9 +1,9 @@
-from datetime import datetime
-from flask import Flask, jsonify, request, url_for, abort, make_response
-from flask_api import status
 import logging
 import os
-import json
+
+from flask import Flask, jsonify, request, url_for, abort, make_response
+from flask_api import status
+from flask_restplus import Api, Resource, fields
 
 from app.util import initialize_logging
 from app.models import Promotion
