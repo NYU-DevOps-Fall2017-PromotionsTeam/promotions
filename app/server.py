@@ -1,20 +1,25 @@
 import logging
 import os
 
-from flask import Flask, jsonify, request, url_for, abort, make_response
-from flask_api import status
-from flask_restplus import Api, Resource, fields, Namespace
+from flask import Flask, jsonify, request, redirect, abort, make_response
+from flask_restplus import Api, Resource, fields
 
 from app.util import initialize_logging
 from app.models import Promotion
-
-flask_app = Flask(__name__)
 
 # Get bindings from the env
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 PORT = os.getenv('PORT', '5001') # NOTICE PORT 5001 !!!! 
 HOSTNAME = os.getenv('HOSTNAME', '127.0.0.1')
 REDIS_PORT = os.getenv('REDIS_PORT', '6379')
+
+#SETUP INITIAL APP
+flask_app = Flask(__name__)
+
+# Redirect Root URL to new Home Url /promotions/home
+@flask_app.route('/', methods=['GET'])
+def redirect_index():
+    return redirect("http://localhost:5001/promotions/home")
 
 ######################################################################
 # Configure Swagger before initilaizing it
@@ -47,18 +52,17 @@ promotion_model = api.model('Promotion', {
                           description='Details describing the Current Promotion')
 })
 
-def check_content_type(content_type):
-    """ Checks that the media type is correct """
-    if request.headers['Content-Type'] != content_type:
-        flask_app.logger.error('Invalid Content-Type: %s' % request.headers['Content-Type'])
-        abort(415, 'Content-Type must be {}'.format(content_type))
 
+#-----------------------------------------
+# HOME PAGE URL RETURNING SIMPLE INFO PAGE
+#-----------------------------------------
 @ns.route('/home', strict_slashes=False)
 class HomePageResource(Resource):
     @api.doc('Render Informational HTML Page')
     def get(self):
         '''The Root URL for Promotion Service'''
         return flask_app.send_static_file('index.html')
+
 
 @ns.route('/<int:promo_id>', strict_slashes=False)
 class PromotionResource(Resource):
@@ -157,17 +161,24 @@ class PromotionCollection(Resource):
 
 @ns.route('/<string:action>', strict_slashes=False)
 class ActionResource(Resource):
-
     def put(self, action):
         '''Perform Some action on the resource'''
         if action == 'delete-all':
             data_reset()
             return make_response('', 204)
 
+#------------------------------------
+
 @flask_app.before_first_request
 def init_db(redis=None):
     ''' Initialize the model '''
     Promotion.init_db(redis)
+
+def check_content_type(content_type):
+    """ Checks that the media type is correct """
+    if request.headers['Content-Type'] != content_type:
+        flask_app.logger.error('Invalid Content-Type: %s' % request.headers['Content-Type'])
+        abort(415, 'Content-Type must be {}'.format(content_type))
 
 def data_reset():
     Promotion.remove_all()
