@@ -228,6 +228,10 @@ class TestServer(unittest.TestCase):
         #print("RESP:", resp2.data)
         self.assertEqual(resp2.status_code, 201)
 
+    def test_root_redirect(self):
+        '''Simple Check to make sure / url gets redirected to home page'''
+        resp = self.app.get('/')
+        self.assertEqual(resp.status_code, 302)
 
 if __name__ == '__main__':
     unittest.main()
