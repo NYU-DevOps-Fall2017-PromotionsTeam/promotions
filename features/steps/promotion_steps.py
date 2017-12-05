@@ -38,6 +38,10 @@ def step_impl(context, page):
     # print("Targer URL", BASE_URL +'{}'.format(page))
     context.resp = context.app.get(BASE_URL +'{}'.format(page))
 
+@when(u'I visit the root url')
+def step_impl(context):
+    context.resp = context.app.get(BASE_URL)
+
 @when(u'I retrieve "{url}" with id "{id}"')
 def step_impl(context, url, id):
     target_url = '{}/{}'.format(url, id)
@@ -92,6 +96,7 @@ def step_impl(context):
 @then(u'I should get a response code "{code}"')
 def step_impl(context, code):
     code = int(code)
+    print(code, context.resp.status_code)
     assert context.resp.status_code == code
 
 @then(u'There should be "{count}" promotions')

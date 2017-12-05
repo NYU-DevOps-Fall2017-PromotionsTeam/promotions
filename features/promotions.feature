@@ -75,3 +75,7 @@ Scenario: Action-Delete all promotions in service
     Then I should get a response code "204"
     When I visit "promotions"
     Then There should be "0" promotions
+
+Scenario: Visiting the home page
+    When I visit the root url
+    Then I should get a response code "302"
