@@ -1,16 +1,21 @@
 Flask==0.12.2
 Flask-API==0.6.9
-# testing Deps TODO(joe): Clean up whats not needed
+flask-restplus==0.10.1
+
+# testing Deps
 pylint
 nose==1.3.7
 rednose==1.2.1
 pinocchio==0.4.2
+
 # Code coverage
 coverage==4.2
 codecov==2.0.5
+
 # add db dep
 redis==2.10.6
 cerberus==1.1
+
 # BDD
 behave==1.2.5
 selenium==3.3.1

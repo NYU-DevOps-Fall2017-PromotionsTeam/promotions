@@ -23,7 +23,7 @@ class TestServer(unittest.TestCase):
 
     def test_index(self):
         '''Test list all promotions'''
-        resp = self.app.get('/')
+        resp = self.app.get('/promotions/home')
         self.assertEqual(resp.status_code, 200)
 
     def test_list_promotions(self):
@@ -55,6 +55,7 @@ class TestServer(unittest.TestCase):
         resp = self.app.get('/promotions/13')
         self.assertEqual(resp.status_code, 404)
         data = json.loads(resp.data.decode('utf-8'))
+        print("data", type(data))
         self.assertEqual(data['error'], info)
 
     def test_create_promotion(self):
@@ -71,6 +72,7 @@ class TestServer(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
         resp = self.app.get('/promotions')
+        self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data.decode('utf-8'))
         self.assertIsInstance(data, list)
         self.assertEqual(len(data), 3)
@@ -221,9 +223,15 @@ class TestServer(unittest.TestCase):
         '''Basic Check to ensure util func is working'''
         resp = self.app.post('/promotions', data=json.dumps({}), content_type='application/xml')
         self.assertEqual(resp.status_code, 415)
-        resp = self.app.post('/promotions', data=json.dumps({}), content_type='application/json')
-        self.assertEqual(resp.status_code, 201)
+        resp2 = self.app.post('/promotions', data=json.dumps({}), content_type='application/json')
+        #print("RESP:", resp2)
+        #print("RESP:", resp2.data)
+        self.assertEqual(resp2.status_code, 201)
 
+    def test_root_redirect(self):
+        '''Simple Check to make sure / url gets redirected to home page'''
+        resp = self.app.get('/')
+        self.assertEqual(resp.status_code, 302)
 
 if __name__ == '__main__':
     unittest.main()
