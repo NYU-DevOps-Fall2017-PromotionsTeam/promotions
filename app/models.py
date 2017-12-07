@@ -19,6 +19,10 @@ def validate_datetime(field, value, error):
         error(field, "Datetime format must be YYYY-MM-DD HH:MM:SS")
 
 
+def get_timestamp(date_str):
+    return datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S').timestamp()
+
+
 class DataValidationError(ValueError):
     pass
 
@@ -119,43 +123,26 @@ class Promotion:
             promotion = Promotion(data['id']).deserialize(data)
             results.append(promotion)
         return results
-    '''
-    @staticmethod
-    def query(filters):
-        """ filters is a dictionary including all requirement for finding promos """
-        Promotion.__validate_query_data(filters)
-        result = set(Promotion.data)
-        if 'name' in filters:
-            result &= set(
-                [promo for promo in Promotion.data if filters['name'] in promo.name])
-        if 'promo_type' in filters:
-            result &= set(
-                [promo for promo in Promotion.data if promo.promo_type == filters['promo_type']])
-        if 'detail' in filters:
-            result &= set([promo for promo in Promotion.data if filters[
-                          'detail'] in promo.detail])
-        if 'valid_on' in filters:
-            result &= set([promo for promo in Promotion.data if filters[
-                          'valid_on'] >= promo.start_date and filters['valid_on'] < promo.end_date])
-        if 'discount_greater_or_equal' in filters:
-            result &= set([promo for promo in Promotion.data if promo.value >= filters[
-                          'discount_greater_or_equal']])
-        return list(result)
-    '''
 
 ######################################################################
 #  R E L A T I O N S H I P S
 ######################################################################
 
     def add_to_xxx(self):
-        """ Adds the Promotions Redis key to a Category set """
-        #Promotion.redis.sadd('category:{}'.format(self.category), Promotion.key(self.id))
-        pass
+        """ Adds the Promotions Redis key to a promo_type set, ordered Start Date and End Date set"""
+        Promotion.redis.sadd('promo_type:{}'.format(
+            self.promo_type), Promotion.key(self.id))
+        Promotion.redis.zadd('start_date', Promotion.key(
+            self.id), get_timestamp(self.start_date))
+        Promotion.redis.zadd('end_date', Promotion.key(
+            self.id), get_timestamp(self.end_date))
 
     def remove_from_xxx(self):
-        """ Removes the Promotions Redis key from a Category set """
-        #Promotion.redis.srem('category:{}'.format(self.category), Promotion.key(self.id))
-        pass
+        """ Removes the Promotions Redis key from a Category set, ordered Start Date and End Date set"""
+        Promotion.redis.srem('promo_type:{}'.format(
+            self.promo_type), Promotion.key(self.id))
+        Promotion.redis.zrem('start_date', Promotion.key(self.id))
+        Promotion.redis.zrem('end_date', Promotion.key(self.id))
 
     @staticmethod
     def find_by_id(promo_id):
@@ -167,6 +154,39 @@ class Promotion:
             promo = Promotion(data['id']).deserialize(data)
             return promo
         return None
+
+    @staticmethod
+    def find_by_conditions(conditions):
+        keys = None
+        if 'promo_type' in conditions:
+            keys = Promotion._find_by_promo_type(conditions['promo_type'])
+        if 'available_on' in conditions:
+            available = Promotion._find_by_available_on(
+                conditions['available_on'])
+            if keys is not None:
+                keys = keys & available
+            else:
+                keys = available
+        results = []
+        if keys:
+            for k in keys:
+                data = pickle.loads(Promotion.redis.get(k))
+                results.append(Promotion(data['id']).deserialize(data))
+            return results
+        return []
+
+    @staticmethod
+    def _find_by_promo_type(promo_type):
+        return set(Promotion.redis.smembers('promo_type:' + promo_type))
+
+    @staticmethod
+    def _find_by_available_on(date_str):
+        timestamp = get_timestamp(date_str)
+        start_keys = set(Promotion.redis.zrangebyscore(
+            'start_date', '-inf', timestamp))
+        end_keys = set(Promotion.redis.zrangebyscore(
+            'end_date', '(' + str(timestamp), '+inf'))
+        return start_keys & end_keys
 
     ######################################################################
     #  R E D I S   D A T A B A S E   C O N N E C T I O N   M E T H O D S
