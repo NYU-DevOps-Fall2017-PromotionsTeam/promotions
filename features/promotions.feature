@@ -17,6 +17,28 @@ Scenario: List All Promotions
     And I should see "promo2"
     And I should see "promo3"
 
+Scenario: List promotions with conditions
+    When I visit "promotions?promo_type=$"
+    Then I should get a response code "200"
+    And I should see "promo1"
+    And I should see "promo2"
+    And I should not see "promo3"
+    When I visit "promotions?promo_type=%"
+    Then I should get a response code "200"
+    And I should not see "promo1"
+    And I should not see "promo2"
+    And I should see "promo3"
+    When I visit "promotions?available_on=2018-06-01 00:00:00"
+    Then I should get a response code "200"
+    And I should not see "promo1"
+    And I should see "promo2"
+    And I should see "promo3"
+    When I visit "promotions?available_on=2018-06-01 00:00:00&promo_type=%"
+    Then I should get a response code "200"
+    And I should not see "promo1"
+    And I should not see "promo2"
+    And I should see "promo3"
+
 Scenario: Get promotion with id
     When I retrieve "promotions" with id "2"
     Then I should get a response code "200"

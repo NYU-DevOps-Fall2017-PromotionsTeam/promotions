@@ -15,8 +15,8 @@ class TestServer(unittest.TestCase):
         self.app.debug = False
         server.init_db()
         server.data_reset()
-        server.data_load(1234,{'name':'test1'})
-        server.data_load(5678,{'name':'test2'})
+        server.data_load(1234, {'name': 'test1'})
+        server.data_load(5678, {'name': 'test2'})
 
     def tearDown(self):
         server.data_reset()
@@ -40,6 +40,45 @@ class TestServer(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(data, [])
 
+    def test_query_promotions(self):
+        '''Test list promotions with conditions'''
+        resp = self.app.get('/promotions?promo_type=$')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 2)
+
+        resp = self.app.get('/promotions?promo_type=%')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 0)
+
+        server.data_load(
+            12345678, {'promo_type': '%', 'start_date': '2017-01-01 00:00:00'})
+
+        resp = self.app.get('/promotions?available_on=2017-06-01 00:00:00')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['id'], 12345678)
+
+        resp = self.app.get(
+            '/promotions?available_on=2017-06-01 00:00:00&promo_type=$')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 0)
+
+        resp = self.app.get(
+            '/promotions?available_on=2017-06-01 00:00:00&promo_type=%')
+        data = json.loads(resp.data.decode('utf-8'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['id'], 12345678)
+
     def test_get_promotion(self):
         '''Test Getting the Promo with ID = 1 '''
         resp = self.app.get('/promotions/1234')
@@ -61,7 +100,8 @@ class TestServer(unittest.TestCase):
     def test_create_promotion(self):
         '''Test Creating simple promotion & one with attributes'''
         location_pattern = re.compile('http://localhost/promotions/\d*')
-        response = self.app.post('/promotions', data=json.dumps({}), content_type='application/json')
+        response = self.app.post(
+            '/promotions', data=json.dumps({}), content_type='application/json')
         self.assertEqual(response.status_code, 201)
         self.assertTrue(location_pattern.match(response.headers['Location']))
         self.assertIsNotNone(response.data)
@@ -77,7 +117,6 @@ class TestServer(unittest.TestCase):
         self.assertIsInstance(data, list)
         self.assertEqual(len(data), 3)
 
-    
     def test_create_promotion2(self):
         '''Test Create With Parameters'''
         params = {
@@ -89,13 +128,14 @@ class TestServer(unittest.TestCase):
             'end_date': '2018-02-02 11:11:11'
         }
         data = json.dumps(params)
-        response = self.app.post('/promotions', data=data, content_type='application/json')
+        response = self.app.post(
+            '/promotions', data=data, content_type='application/json')
         resp_data = json.loads(response.data.decode('utf-8'))
 
         self.assertEqual(response.status_code, 201)
         location_pattern = re.compile('http://localhost/promotions/\d*')
         self.assertTrue(location_pattern.match(response.headers['Location']))
-        
+
         self.assertIsNotNone(resp_data)
         self.assertEqual(resp_data['name'], 'test')
         self.assertEqual(resp_data['promo_type'], '%')
@@ -120,34 +160,37 @@ class TestServer(unittest.TestCase):
             'value': 10.0,
             'detail': 'test',
             'promo_type': '%',
-            'start_date': '2017-01-0111:11:11', # notice bad time stamps
+            'start_date': '2017-01-0111:11:11',  # notice bad time stamps
             'end_date': '2018-02-0211:11:11'
         }
         data = json.dumps(params)
-        resp = self.app.post('/promotions', data=data, content_type='application/json')
-        self.assertEqual(resp.status_code, 400) 
-        
+        resp = self.app.post('/promotions', data=data,
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, 400)
+
         params = {
             'name': 'test',
             'value': 10.0,
             'detail': 'test',
-            'promo_type': 'A', # bad promo type
+            'promo_type': 'A',  # bad promo type
             'start_date': '2017-01-01 11:11:11',
             'end_date': '2018-02-02 11:11:11'
         }
-        resp = self.app.post('/promotions', data=data, content_type='application/json')
-        self.assertEqual(resp.status_code, 400) 
+        resp = self.app.post('/promotions', data=data,
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, 400)
 
         params = {
             'name': 'test',
-            'value': "SOME STRING", # bad value type
+            'value': "SOME STRING",  # bad value type
             'detail': 'test',
             'promo_type': '%',
             'start_date': '2017-01-01 11:11:11',
             'end_date': '2018-02-02 11:11:11'
         }
-        resp = self.app.post('/promotions', data=data, content_type='application/json')
-        self.assertEqual(resp.status_code, 400) 
+        resp = self.app.post('/promotions', data=data,
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, 400)
 
     def test_update_promotion(self):
         '''Do a put to update some data'''
@@ -156,22 +199,24 @@ class TestServer(unittest.TestCase):
             'value': 10,
             'end_date': '2018-02-02 11:11:11'
         }
-        resp = self.app.put('/promotions/1234', data=json.dumps(data), content_type='application/json')
+        resp = self.app.put(
+            '/promotions/1234', data=json.dumps(data), content_type='application/json')
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data.decode('utf-8'))
-        self.assertEqual(data['name'],'update_test')
-        self.assertEqual(data['value'],10)
+        self.assertEqual(data['name'], 'update_test')
+        self.assertEqual(data['value'], 10)
         self.assertEqual(data['end_date'], '2018-02-02 11:11:11')
 
         resp = self.app.get('/promotions')
         data = json.loads(resp.data.decode('utf-8'))
         self.assertIsInstance(data, list)
         self.assertEqual(len(data), 2)
-        
+
     def test_bad_update(self):
         '''Test Bad update, ID not found'''
         data = {'name': 'NEWNAME'}
-        resp = self.app.put('/promotions/'+str(100), data=json.dumps(data), content_type='application/json')
+        resp = self.app.put('/promotions/' + str(100),
+                            data=json.dumps(data), content_type='application/json')
         self.assertEqual(resp.status_code, 404)
 
     def test_delete_promotion(self):
@@ -221,9 +266,11 @@ class TestServer(unittest.TestCase):
 
     def test_check_content_type(self):
         '''Basic Check to ensure util func is working'''
-        resp = self.app.post('/promotions', data=json.dumps({}), content_type='application/xml')
+        resp = self.app.post('/promotions', data=json.dumps({}),
+                             content_type='application/xml')
         self.assertEqual(resp.status_code, 415)
-        resp2 = self.app.post('/promotions', data=json.dumps({}), content_type='application/json')
+        resp2 = self.app.post(
+            '/promotions', data=json.dumps({}), content_type='application/json')
         #print("RESP:", resp2)
         #print("RESP:", resp2.data)
         self.assertEqual(resp2.status_code, 201)

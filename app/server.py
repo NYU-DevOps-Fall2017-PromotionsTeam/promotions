@@ -9,14 +9,16 @@ from app.models import Promotion
 
 # Get bindings from the env
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
-PORT = os.getenv('PORT', '5001') # NOTICE PORT 5001 !!!! 
+PORT = os.getenv('PORT', '5001')  # NOTICE PORT 5001 !!!!
 HOSTNAME = os.getenv('HOSTNAME', '127.0.0.1')
 REDIS_PORT = os.getenv('REDIS_PORT', '6379')
 
-#SETUP INITIAL APP
+# SETUP INITIAL APP
 flask_app = Flask(__name__)
 
 # Redirect Root URL to new Home Url /promotions/home
+
+
 @flask_app.route('/', methods=['GET'])
 def redirect_index():
     return redirect("http://localhost:5001/promotions/home")
@@ -29,7 +31,7 @@ api = Api(flask_app,
           title='Promotion Service REST API',
           description='Serving data on what promotions are available',
           doc='/promotions/api'
-         )
+          )
 
 # This namespace is the start of the path i.e., /promotions
 ns = api.namespace('promotions', description='Promotion operations')
@@ -41,15 +43,15 @@ promotion_model = api.model('Promotion', {
     'name': fields.String(required=True,
                           description='The name of the Promotion, "default" if not defined by user'),
     'promo_type': fields.String(required=True,
-                          description='The type of the Promotion, either "%" or "$" '),
+                                description='The type of the Promotion, either "%" or "$" '),
     'value': fields.Float(required=True,
                           description='The Value of the current deal, "10.50" or "1"'),
     'start_date': fields.String(required=True,
-                          description='Date when the promotion is valid from, YYYY-MM-DD HH:MM:SS'),
+                                description='Date when the promotion is valid from, YYYY-MM-DD HH:MM:SS'),
     'end_date': fields.String(required=True,
-                          description='Date when the promotion is valid to, YYYY-MM-DD HH:MM:SS'),
+                              description='Date when the promotion is valid to, YYYY-MM-DD HH:MM:SS'),
     'detail': fields.String(required=True,
-                          description='Details describing the Current Promotion')
+                            description='Details describing the Current Promotion')
 })
 
 
@@ -58,6 +60,7 @@ promotion_model = api.model('Promotion', {
 #-----------------------------------------
 @ns.route('/home', strict_slashes=False)
 class HomePageResource(Resource):
+
     @api.doc('Render Informational HTML Page')
     def get(self):
         '''The Root URL for Promotion Service'''
@@ -88,7 +91,8 @@ class PromotionResource(Resource):
             info = 'Promotion with id: {} was not found'.format(promo_id)
             flask_app.logger.info(info)
             return make_response(jsonify(error=info), 404)
-        flask_app.logger.info("GET promotion with id: {} success".format(promo_id))
+        flask_app.logger.info(
+            "GET promotion with id: {} success".format(promo_id))
         return make_response(jsonify(promo.serialize()), 200)
 
     #-----------------------------------------
@@ -124,17 +128,28 @@ class PromotionResource(Resource):
             promo.delete()
         return make_response('', 204)
 
+
 @ns.route('/', strict_slashes=False)
 class PromotionCollection(Resource):
     """ Handles all interactions with collections of Promotions """
 
     @ns.doc('get_all_promotions')
+    @ns.param('promo_type', 'List Promotion with this type')
+    @ns.param('available_on', 'List Promotion available on this date')
+    @ns.marshal_list_with(promotion_model, code=200)
     def get(self):
         """ Returns all of the Promotions """
+        conditions = request.values.to_dict()
         payload = Promotion.all()
+
+        if conditions:
+            payload = Promotion.find_by_conditions(conditions)
+
         payload = [promo.serialize() for promo in payload]
-        flask_app.logger.info("GET all promotions success")
-        return make_response(jsonify(payload), 200)
+
+        flask_app.logger.info("GET promotions success")
+
+        return payload, 200
 
     @ns.doc('create_promotion')
     @ns.expect(promotion_model)
@@ -153,14 +168,17 @@ class PromotionCollection(Resource):
             promotion.deserialize(api.payload)
             promotion.save()
             flask_app.logger.info('CREATE promotion Success')
-            location_url = api.url_for(PromotionResource, promo_id=promotion.id, _external=True)
-            return  promotion.serialize(), 201, {'Location': location_url}
+            location_url = api.url_for(
+                PromotionResource, promo_id=promotion.id, _external=True)
+            return promotion.serialize(), 201, {'Location': location_url}
         except Exception as e:
             print("EXCEPTION:", str(e))
             return jsonify(error=str(e)), 400
 
+
 @ns.route('/<string:action>', strict_slashes=False)
 class ActionResource(Resource):
+
     def put(self, action):
         '''Perform Some action on the resource'''
         if action == 'delete-all':
@@ -169,21 +187,26 @@ class ActionResource(Resource):
 
 #------------------------------------
 
+
 @flask_app.before_first_request
 def init_db(redis=None):
     ''' Initialize the model '''
     Promotion.init_db(redis)
 
+
 def check_content_type(content_type):
     """ Checks that the media type is correct """
     if request.headers['Content-Type'] != content_type:
-        flask_app.logger.error('Invalid Content-Type: %s' % request.headers['Content-Type'])
+        flask_app.logger.error('Invalid Content-Type: %s' %
+                               request.headers['Content-Type'])
         abort(415, 'Content-Type must be {}'.format(content_type))
+
 
 def data_reset():
     Promotion.remove_all()
 
-def data_load(promo_id,data):
+
+def data_load(promo_id, data):
     promo = Promotion(promo_id)
     promo.deserialize(data)
     promo.save()
