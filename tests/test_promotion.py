@@ -140,22 +140,11 @@ class TestPromotion(unittest.TestCase):
         failtest = Promotion.find_by_id(fake_id)
         self.assertIsNone(failtest)
 
-    def test_passing_connection(self):
-        """ Pass in the Redis connection """
-        Promotion.init_db(Redis(host='127.0.0.1', port=6379))
-        self.assertIsNotNone(Promotion.redis)
-
     def test_passing_bad_connection(self):
         """ Pass in a bad Redis connection """
         self.assertRaises(DatabaseConnectionError,
                           Promotion.init_db, Redis(host='127.0.0.1', port=6300))
         self.assertIsNone(Promotion.redis)
-
-    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES)})
-    def test_vcap_services(self):
-        """ Test if VCAP_SERVICES works """
-        Promotion.init_db()
-        self.assertIsNotNone(Promotion.redis)
 
     @patch('redis.Redis.ping')
     def test_redis_connection_error(self, ping_error_mock):
