@@ -152,7 +152,6 @@ class TestPromotion(unittest.TestCase):
                           Promotion.init_db, Redis(host='127.0.0.1', port=6300))
         self.assertIsNone(Promotion.redis)
 
-    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES)})
     def test_vcap_services(self):
         """ Test if VCAP_SERVICES works """
         if 'VCAP_SERVICES' in os.environ:
