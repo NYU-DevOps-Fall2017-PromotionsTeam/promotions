@@ -21,7 +21,7 @@ flask_app = Flask(__name__)
 
 @flask_app.route('/', methods=['GET'])
 def redirect_index():
-    return redirect("http://localhost:5001/promotions/home")
+    return redirect("/promotions/home")
 
 ######################################################################
 # Configure Swagger before initilaizing it
