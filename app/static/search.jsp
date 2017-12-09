@@ -36,7 +36,7 @@
 				
 				<tr><td>
 				<h2>1. List All Promotions</h2>
-				<form action="instruction.jsp">
+				<form action="http://nyu-promotion-service-f17.mybluemix.net/promotions">
 					<tr align=center>
 						<td>
 						<input type="submit" value="SEARCH" class="button" onclick="infosub()"/>
