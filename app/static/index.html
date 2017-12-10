@@ -23,10 +23,10 @@
 			</div>
 			<!--Start: Navigation Bar-->
 			<div class="navigation">
-				<a href="create.jsp">Creat</a>
-				<a href="update.jsp">Update</a>
+				<a href="crud.jsp">Creat</a>
+				<a href="crud.jsp">Update</a>
 				<a href="search.jsp">Search</a>
-				<a href="delete.jsp">Delete</a>
+				<a href="crud.jsp">Delete</a>
 				<div class="clearer"><span></span></div>
 			</div>
 			<!--End: Navigation Bar-->
@@ -60,12 +60,12 @@
 			<div class="sidenav">
 				<h1>Quick Start</h1>
 				<ul>
-					<li><a href="create.jsp">Create a promotion with default characteristics</a></li>
-					<li><a href="create.jsp">Create a promotion with incorrect header</a></li>
-					<li><a href="update.jsp">Update a promotion with value</a></li>
-					<li><a href="update.jsp">Update a promotion with promotion type</a></li>
-					<li><a href="delete.jsp">Delete a promotion with valid ID</a></li>
-					<li><a href="delete.jsp">Delete a promotion with invalid ID</a></li>
+					<li><a href="crud.jsp">Create a promotion with default characteristics</a></li>
+					<li><a href="crud.jsp">Create a promotion with incorrect header</a></li>
+					<li><a href="crud.jsp">Update a promotion with value</a></li>
+					<li><a href="crud.jsp">Update a promotion with promotion type</a></li>
+					<li><a href="crud.jsp">Delete a promotion with valid ID</a></li>
+					<li><a href="crud.jsp">Delete a promotion with invalid ID</a></li>
 					<li><a href="search.jsp">List All Promotions</a></li>
 					<li><a href="search.jsp">Get Promotion with ID</a></li>
 					<li><a href="search.jsp">Get Promotion with Invalid ID</a></li>
@@ -80,8 +80,10 @@
 	
 		<!--Footer-->
 		<div class="footer">
-			<div class="left">&copy; Developers: jzuhusky@nyu.edu, dy877@nyu.edu, dz1120@nyu.edu, jz2668@nyu.edu. This is a Fall2017 DevOps Project: Promotion Service. 
-					<a href="index.html">[GO TO TOP] </a></div>
+			<div class="left">&copy; Developers: jzuhusky@nyu.edu, dy877@nyu.edu, dz1120@nyu.edu, jz2668@nyu.edu. </div>
+			<br><br>
+			<div class="left">This is a Fall2017 DevOps Project: Promotion Service. 
+					<a href="http://nyu-promotion-service-f17.mybluemix.net/">[GO TO TOP] </a></div>
 			<div class="clearer">&nbsp;</div>
 		</div>
 		<script src="js/jquery-2.1.1.min.js" type="text/javascript"></script>
@@ -89,7 +91,6 @@
 						<script src="js/jquery.hslider.js"></script>
 						<script type="text/javascript">       
 						$( document ).ready(function() { 
-								//$( ".hsldr-container" ).hslider("navBar:false"); // create slider
 							$( ".hsldr-container" ).hslider({
 									  navBar: true,
 									  auto: true,
