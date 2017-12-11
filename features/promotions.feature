@@ -100,4 +100,4 @@ Scenario: Action-Delete all promotions in service
 
 Scenario: Visiting the home page
     When I visit the root url
-    Then I should get a response code "302"
+    Then I should get a response code "200"
