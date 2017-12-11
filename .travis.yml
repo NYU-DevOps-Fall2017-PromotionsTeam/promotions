@@ -6,7 +6,10 @@ python:
 install: "pip install -r requirements.txt"
 
 # commands to run tests
-before_script: redis-cli ping
+before_script: 
+  - redis-cli ping
+  - python3 run.py &
+  - sleep 3
 
 script:
   - nosetests
