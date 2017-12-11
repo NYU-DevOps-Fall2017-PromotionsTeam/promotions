@@ -199,6 +199,6 @@ def data_load(promo_id, data):
     promo.deserialize(data)
     promo.save()
 
-if __name__ == "__main__":
+def run():
     initialize_logging(logging.INFO, flask_app)
     flask_app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)

@@ -3,7 +3,7 @@ import requests
 from behave import *
 import json
 from app import server
-from verify import expect, ensure
+from verify import expect
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
@@ -213,7 +213,7 @@ def step_impl(context, name):
 def step_impl(context, name):
     element = context.driver.find_element_by_id('search_results')
     error_msg = "I should not see '%s' in '%s'" % (name, element.text)
-    ensure(name in element.text, False, error_msg)
+    expect(element.text).to_not_contain(name)
 
 @then(u'I should see "{text_string}" in the "{element_name}" field')
 def step_impl(context, text_string, element_name):

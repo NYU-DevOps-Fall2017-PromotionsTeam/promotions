@@ -98,10 +98,6 @@ Scenario: Action-Delete all promotions in service
     When I visit "promotions"
     Then There should be "0" promotions
 
-Scenario: Visiting the home page
-    When I visit the root url
-    Then I should get a response code "200"
-
 #Test using UI
 
 Scenario: The server is running
@@ -142,7 +138,8 @@ Scenario: Retrive and Update a Promotion
     When I change field "Name" to "Update Test"
     And I press the "Update" button
     Then I should see the message "Success"
-    When I set the "Id" to "1"
+    When I press the "Clear" button
+    And I set the "Id" to "0"
     And I press the "Retrieve" button
     Then I should see "Update Test" in the "Name" field
     When I press the "Clear" button
@@ -154,7 +151,7 @@ Scenario: Delete a Promotion
     When I visit the root url
     And I set the "Id" to "2"
     And I press the "Delete" button
-    Then I should see the message "Success"
+    Then I should see the message "Promotion with ID [2] has been Deleted!"
     When I press the "Clear" button
     And I press the "Search" button
-    Then I should not see "promo3" in the resultsDelete
+    Then I should not see "promo3" in the results
