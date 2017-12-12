@@ -98,6 +98,60 @@ Scenario: Action-Delete all promotions in service
     When I visit "promotions"
     Then There should be "0" promotions
 
-Scenario: Visiting the home page
+#Test using UI
+
+Scenario: The server is running
     When I visit the root url
-    Then I should get a response code "302"
+    Then I should see "Promotion Demo RESTful Service" in the title
+
+Scenario: Create a Promotion
+    When I visit the root url
+    And I set the "Name" to "Promo_Selenium"
+    And I set the "Type" to "%"
+    And I set the "Value" to "50"
+    And I set the "Start_date" to "2000-01-01 00:00:00"
+    And I set the "End_date" to "2020-01-01 00:00:00"
+    And I set the "Detail" to "Selenium test"
+    And I press the "Create" button
+    Then I should see the message "Success"
+
+Scenario: List all Promotions
+    When I visit the root url
+    And I press the "Search" button
+    Then I should see "promo1" in the results
+    And I should see "promo2" in the results
+    And I should see "promo3" in the results
+
+Scenario: List all Promotions with Type %
+    When I visit the root url
+    And I set the "Type" to "%"
+    And I press the "Search" button
+    Then I should see "promo3" in the results
+    And I should not see "promo1" in the results
+    And I should not see "promo2" in the results
+
+Scenario: Retrive and Update a Promotion
+    When I visit the root url
+    And I set the "Id" to "0"
+    And I press the "Retrieve" button
+    Then I should see "promo1" in the "Name" field
+    When I change field "Name" to "Update Test"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I press the "Clear" button
+    And I set the "Id" to "0"
+    And I press the "Retrieve" button
+    Then I should see "Update Test" in the "Name" field
+    When I press the "Clear" button
+    And I press the "Search" button
+    Then I should see "Update Test" in the results
+    Then I should not see "promo1" in the results
+
+Scenario: Delete a Promotion
+    When I visit the root url
+    And I set the "Id" to "2"
+    And I press the "Delete" button
+    Then I should see the message "Promotion with ID [2] has been Deleted!"
+    When I press the "Clear" button
+    And I press the "Search" button
+    Then I should not see "promo3" in the results

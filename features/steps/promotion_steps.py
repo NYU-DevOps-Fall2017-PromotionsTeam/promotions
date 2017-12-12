@@ -3,7 +3,12 @@ import requests
 from behave import *
 import json
 from app import server
+from verify import expect
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
 
+WAIT_SECONDS = 30
 BASE_URL = getenv('BASE_URL', 'http://localhost:5001/')
 #BASE_URL = getenv('BASE_URL', '/')
 
@@ -14,8 +19,7 @@ BASE_URL = getenv('BASE_URL', 'http://localhost:5001/')
 @given(u'the following promotions')
 def step_impl(context):
 
-    # TODO(joe): Add code here to clear the Model of any data
-    # Will need to do this after persistence is added
+    server.data_reset()
     for row in context.table:
         server.data_load(
             row['id'],
@@ -40,7 +44,30 @@ def step_impl(context, page):
 
 @when(u'I visit the root url')
 def step_impl(context):
-    context.resp = context.app.get(BASE_URL)
+    context.driver.get(context.base_url)
+    print(context.driver.current_url)
+
+@when(u'I press the "{button}" button')
+def step_impl(context, button):
+    button_id = button.lower() + '-btn'
+    context.driver.find_element_by_id(button_id).click()
+
+@when(u'I set the "{element_name}" to "{text_string}"')
+def step_impl(context, element_name, text_string):
+    element_id = 'promo_' + element_name.lower()
+    element = context.driver.find_element_by_id(element_id)
+    element.clear()
+    element.send_keys(text_string)
+
+@when(u'I change field "{element_name}" to "{text_string}"')
+def step_impl(context, element_name, text_string):
+    element_id = 'promo_' + element_name.lower()
+    #element = context.driver.find_element_by_id(element_id)
+    element = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.presence_of_element_located((By.ID, element_id))
+    )
+    element.clear()
+    element.send_keys(text_string)
 
 @when(u'I retrieve "{url}" with id "{id}"')
 def step_impl(context, url, id):
@@ -92,6 +119,11 @@ def step_impl(context):
 #########################################
 # THEN STATEMENTS                       #
 #########################################
+
+@then(u'I should see "{message}" in the title')
+def step_impl(context, message):
+    """ Check the document title for a message """
+    expect(context.driver.title).to_contain(message)
 
 @then(u'I should get a response code "{code}"')
 def step_impl(context, code):
@@ -152,3 +184,46 @@ def step_impl(context, key, value):
 @then(u'I reset the server db for further tests')
 def step_impl(context):
     server.data_reset()
+
+@then(u'I should see the message "{message}"')
+def step_impl(context, message):
+    #element = context.driver.find_element_by_id('flash_message')
+    #expect(element.text).to_contain(message)
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'flash_message'),
+            message
+        )
+    )
+    expect(found).to_be(True)
+
+@then(u'I should see "{name}" in the results')
+def step_impl(context, name):
+    #element = context.driver.find_element_by_id('search_results')
+    #expect(element.text).to_contain(name)
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'search_results'),
+            name
+        )
+    )
+    expect(found).to_be(True)
+
+@then(u'I should not see "{name}" in the results')
+def step_impl(context, name):
+    element = context.driver.find_element_by_id('search_results')
+    error_msg = "I should not see '%s' in '%s'" % (name, element.text)
+    expect(element.text).to_not_contain(name)
+
+@then(u'I should see "{text_string}" in the "{element_name}" field')
+def step_impl(context, text_string, element_name):
+    element_id = 'promo_' + element_name.lower()
+    #element = context.driver.find_element_by_id(element_id)
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element_value(
+            (By.ID, element_id),
+            text_string
+        )
+    )
+    #expect(element.get_attribute('value')).to_equal(text_string)
+    expect(found).to_be(True)

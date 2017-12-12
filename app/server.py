@@ -19,9 +19,9 @@ flask_app = Flask(__name__)
 # Redirect Root URL to new Home Url /promotions/home
 
 
-@flask_app.route('/', methods=['GET'])
-def redirect_index():
-    return redirect("/promotions/home")
+@flask_app.route('/')
+def index():
+    return flask_app.send_static_file('index.html')
 
 ######################################################################
 # Configure Swagger before initilaizing it
@@ -53,18 +53,6 @@ promotion_model = api.model('Promotion', {
     'detail': fields.String(required=True,
                             description='Details describing the Current Promotion')
 })
-
-
-#-----------------------------------------
-# HOME PAGE URL RETURNING SIMPLE INFO PAGE
-#-----------------------------------------
-@ns.route('/home', strict_slashes=False)
-class HomePageResource(Resource):
-
-    @api.doc('Render Informational HTML Page')
-    def get(self):
-        '''The Root URL for Promotion Service'''
-        return flask_app.send_static_file('index.html')
 
 
 @ns.route('/<int:promo_id>', strict_slashes=False)
@@ -211,6 +199,6 @@ def data_load(promo_id, data):
     promo.deserialize(data)
     promo.save()
 
-if __name__ == "__main__":
+def run():
     initialize_logging(logging.INFO, flask_app)
     flask_app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
