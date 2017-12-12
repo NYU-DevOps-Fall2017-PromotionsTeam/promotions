@@ -14,4 +14,5 @@ http://nyu-promotion-service-f17.mybluemix.net/
 
 ### Try it out  
 REST API Calls -> @ url http://nyu-promotion-service-f17-prod.mybluemix.net/promotions
- 
+
+  
