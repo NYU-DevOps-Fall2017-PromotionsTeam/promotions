@@ -40,7 +40,7 @@ def step_impl(context):
 @when(u'I visit "{page}"')
 def step_impl(context, page):
     # print("Targer URL", BASE_URL +'{}'.format(page))
-    context.resp = context.app.get(BASE_URL +'{}'.format(page))
+    context.resp = context.app.get('http://localhost:5001/' +'{}'.format(page))
 
 @when(u'I visit the root url')
 def step_impl(context):
@@ -72,7 +72,7 @@ def step_impl(context, element_name, text_string):
 @when(u'I retrieve "{url}" with id "{id}"')
 def step_impl(context, url, id):
     target_url = '{}/{}'.format(url, id)
-    context.resp = context.app.get(BASE_URL + target_url)
+    context.resp = context.app.get('http://localhost:5001/' + target_url)
     context.data = json.loads(context.resp.data.decode('utf-8'))
     assert isinstance(context.data, dict)
 
@@ -81,7 +81,7 @@ def step_impl(context, url, id):
     target_url = '{}/{}'.format(url, id)
     headers = {'content-type': 'application/json'}
     data = json.dumps(context.data)
-    context.resp = context.app.put(BASE_URL + target_url, data=data, headers=headers)
+    context.resp = context.app.put('http://localhost:5001/' + target_url, data=data, headers=headers)
     assert context.resp.status_code == 200
 
 @when(u'I change "{key}" to "{value}"')
@@ -93,7 +93,7 @@ def step_impl(context, key, value):
 @when(u'I delete "{url}" with id "{id}"')
 def step_impl(context, url, id):
     target_url = '{}/{}'.format(url, id)
-    context.resp = context.app.delete(BASE_URL + target_url)
+    context.resp = context.app.delete('http://localhost:5001/' + target_url)
     assert context.resp.status_code == 204
 
 @when(u'I create a promotion')
@@ -101,7 +101,7 @@ def step_impl(context):
     target_url = 'promotions'
     headers = {'content-type': 'application/json'}
     data=json.dumps({})
-    context.resp = context.app.post(BASE_URL + target_url, data=data, headers=headers)
+    context.resp = context.app.post('http://localhost:5001/' + target_url, data=data, headers=headers)
 
 @when(u'I call POST with Incorrect content-type')
 def step_impl(context):
@@ -109,12 +109,12 @@ def step_impl(context):
     #headers = {'content-type': 'application/json'}
     headers = {'content-type': 'not_application/json'}
     data=json.dumps({})
-    context.resp = context.app.post(BASE_URL + target_url, data=data, headers=headers)
+    context.resp = context.app.post('http://localhost:5001/' + target_url, data=data, headers=headers)
 
 @when(u'I send a PUT request to \'/promotions/delete-all\'')
 def step_impl(context):
     target_url = 'promotions/delete-all'
-    context.resp = context.app.put(BASE_URL + target_url)
+    context.resp = context.app.put('http://localhost:5001/' + target_url)
 
 #########################################
 # THEN STATEMENTS                       #
