@@ -9,10 +9,6 @@ http://nyu-promotion-service-f17-prod.mybluemix.net/
 ### Api Docs  
 http://nyu-promotion-service-f17-prod.mybluemix.net/promotions/api
 
-### Home Page
-http://nyu-promotion-service-f17-prod.mybluemix.net/promotions/home
-
-
 ## Development Server  
 http://nyu-promotion-service-f17.mybluemix.net/
 
