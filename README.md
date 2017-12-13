@@ -15,4 +15,39 @@ http://nyu-promotion-service-f17.mybluemix.net/
 ### Try it out  
 REST API Calls -> @ url http://nyu-promotion-service-f17-prod.mybluemix.net/promotions
 
+
+## Setup 
+1. Clone and cd into the Repo  
+```
+git clone https://github.com/NYU-DevOps-Fall2017-PromotionsTeam/promotions
+```
+2. Boot the VM  
+```
+vagrant up && vagrant ssh
+```
+3. cd into shared /vagrant file
+```
+cd /vagrant
+```
+
+### Run Tests Before Doing Anything
+```
+nosetests &&
+python3 run.py &
+behave
+```
+Make sure the Server is running by going to http://localhost:5001/
+
+### Kill The Server If You Want
+You should probably do this before contributing to the project
+```
+kill $(ps aux | grep 'python3 run.py' | grep -v grep | awk '{print $2}')
+```
+
+### Alternatively
+This script will run tests and kill the server once finished
+```
+./run_tests.sh
+```
+
   
