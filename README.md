@@ -52,4 +52,10 @@ This script will run tests and clean-up the running server when done
 ./run_tests.sh
 ```
 
+## Authors
+
+* **Joe Zuhusky** - jzuhusky@nyu.edu
+* **Da Ying** - dy877@nyu.edu
+* **Diqing Zhu** - dz1120@nyu.edu
+* **Jincong Zhu** - jz2668@nyu.edu
 
