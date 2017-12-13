@@ -49,3 +49,4 @@ This script will run tests and clean-up the running server when done
 ```
 ./run_tests.sh
 ```
+
