@@ -45,7 +45,7 @@ kill $(ps aux | grep 'python3 run.py' | grep -v grep | awk '{print $2}')
 ```
 
 ### Alternatively
-This script will run tests and kill the server once finished
+This script will run tests and clean-up the running server when done
 ```
 ./run_tests.sh
 ```
