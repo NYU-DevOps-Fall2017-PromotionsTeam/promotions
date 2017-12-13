@@ -15,6 +15,8 @@ http://nyu-promotion-service-f17.mybluemix.net/
 ### Try it out  
 REST API Calls -> @ url http://nyu-promotion-service-f17-prod.mybluemix.net/promotions
 
+We recommend using this REST Client:  
+https://install.advancedrestclient.com/#/install
 
 ## Setup 
 1. Clone and cd into the Repo  
