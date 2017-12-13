@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine and only allow access
   # via 127.0.0.1 to disable public access
-  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 80, host: 8081, host_ip: "127.0.0.1"
   # Flask Listens for Connections on Port 5000 (we can change this...)
   config.vm.network "forwarded_port", guest: 5001, host: 5001, host_ip: "127.0.0.1"
 
@@ -92,6 +92,7 @@ Vagrant.configure("2") do |config|
     sudo -H -u ubuntu echo "colorscheme desert" >> ~/.vimrc
     sudo -H -u ubuntu echo "set background=dark" >> ~/.vimrc
     cd /vagrant
+    sudo chmod +x run_tests.sh
     sudo pip3 install -r requirements.txt
     # Install PhantomJS for Selenium browser support
     echo "\n***********************************"
